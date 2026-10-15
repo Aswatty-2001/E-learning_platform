@@ -1,0 +1,14 @@
+{% extends 'accounts/dashboards/dashboard_base.html' %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Student Dashboard</h1>
+    <span class="badge bg-success">Active</span>
+</div>
+
+<div class="alert alert-info">
+    Welcome, {{ user.first_name }}! Your account .
+</div>
+
+
+{% endblock %}

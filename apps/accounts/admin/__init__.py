@@ -1,0 +1,2 @@
+from .user_admin import CustomUserAdmin
+from .profile_admin import ContentManagerProfileAdmin

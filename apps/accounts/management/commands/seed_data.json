@@ -1,0 +1,79 @@
+[
+    {
+        "role": "ADMIN",
+        "first_name": "Aarav",
+        "last_name": "Sharma",
+        "email": "aarav.sharma@learnplatform.com",
+        "phone": "+919876543210"
+    },
+    {
+        "role": "ADMIN",
+        "first_name": "Priya",
+        "last_name": "Patel",
+        "email": "priya.patel@learnplatform.com",
+        "phone": "+919876543211"
+    },
+    {
+        "role": "ADMIN",
+        "first_name": "Rahul",
+        "last_name": "Mehta",
+        "email": "rahul.mehta@learnplatform.com",
+        "phone": "+919876543212"
+    },
+    {
+        "role": "CONTENT_MANAGER",
+        "first_name": "Sneha",
+        "last_name": "Reddy",
+        "email": "sneha.reddy@learnplatform.com",
+        "phone": "+919876543213"
+    },
+    {
+        "role": "CONTENT_MANAGER",
+        "first_name": "Vikram",
+        "last_name": "Nair",
+        "email": "vikram.nair@learnplatform.com",
+        "phone": "+919876543214"
+    },
+    {
+        "role": "CONTENT_MANAGER",
+        "first_name": "Ananya",
+        "last_name": "Das",
+        "email": "ananya.das@learnplatform.com",
+        "phone": "+919876543215"
+    },
+    {
+        "role": "CONTENT_MANAGER",
+        "first_name": "Rohan",
+        "last_name": "Gupta",
+        "email": "rohan.gupta@learnplatform.com",
+        "phone": "+919876543216"
+    },
+    {
+        "role": "CONTENT_MANAGER",
+        "first_name": "Kavya",
+        "last_name": "Iyer",
+        "email": "kavya.iyer@learnplatform.com",
+        "phone": "+919876543217"
+    },
+    {
+        "role": "CONTENT_MANAGER",
+        "first_name": "Arjun",
+        "last_name": "Singh",
+        "email": "arjun.singh@learnplatform.com",
+        "phone": "+919876543218"
+    },
+    {
+        "role": "SUPPORT",
+        "first_name": "Diya",
+        "last_name": "Kumar",
+        "email": "diya.kumar@learnplatform.com",
+        "phone": "+919876543219"
+    },
+    {
+        "role": "SUPPORT",
+        "first_name": "Karan",
+        "last_name": "Joshi",
+        "email": "karan.joshi@learnplatform.com",
+        "phone": "+919876543220"
+    }
+]

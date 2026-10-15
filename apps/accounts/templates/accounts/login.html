@@ -1,0 +1,57 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<style>
+    /* Apply the background image to the whole page */
+    body {
+        background-image: url("{% static 'img/study-bg.png' %}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
+    /* Make the form container semi-transparent white so text is readable */
+    .auth-container {
+        background-color: rgba(255, 255, 255, 0.95); /* 95% opaque */
+        backdrop-filter: blur(5px);
+    }
+    /* Make alerts stand out more inside the glass card */
+    .alert {
+        margin-bottom: 1.5rem;
+        font-weight: 500;
+    }
+</style>
+<div class="auth-container">
+    <h2 class="text-center mb-4">Login</h2>
+    
+    <!-- Error Messages moved INSIDE the card -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger text-center" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Email or Phone</label>
+            <input type="text" name="identifier" class="form-control" required value="{{ form.identifier.value|default:'' }}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-action w-100">Login</button>
+        
+        <p class="text-center mt-3"><a href="{% url 'password_reset' %}">Forgot Password?</a></p>
+        
+        <hr>
+        <p class="text-center text-muted small">No account? <a href="{% url 'register' %}">Sign up as Student</a></p>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Learning Platform{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --color-sidebar: #0F172A;
+            --color-primary: #0891B2;
+            --color-action: #A3E635;
+            --color-progress: #22D3EE;
+            --color-page-bg: #F4F7FA;
+            --color-text: #0B1220;
+        }
+        body { 
+            background-color: var(--color-page-bg); 
+            color: var(--color-text);
+        }
+        .auth-container { 
+            max-width: 500px; 
+            margin: 50px auto; 
+            padding: 20px; 
+            background: white; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
+        .navbar-dark { background-color: var(--color-sidebar) !important; }
+        .btn-primary { background-color: var(--color-primary); border-color: var(--color-primary); }
+        .btn-primary:hover { background-color: #0e7490; border-color: #0e7490; }
+        .btn-action { background-color: var(--color-action); border-color: var(--color-action); color: var(--color-text); font-weight: bold; }
+        .btn-action:hover { background-color: #84cc16; border-color: #84cc16; color: var(--color-text); }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="color: var(--color-action); font-weight: bold;">Learning Platform</a>
+            <div class="d-flex">
+                {% if user.is_authenticated %}
+                    <span class="navbar-text text-light me-3">Hi, {{ user.first_name }} ({{ user.role|title }})</span>
+                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm me-2">Login</a>
+                    <a href="{% url 'register' %}" class="btn btn-action btn-sm">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+   
+           
+
+        
+    <div class="container mt-4">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

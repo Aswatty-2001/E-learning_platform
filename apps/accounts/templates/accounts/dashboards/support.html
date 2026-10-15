@@ -1,0 +1,25 @@
+{% extends 'accounts/dashboards/dashboard_base.html' %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Support Team Dashboard</h1>
+</div>
+
+<div class="alert alert-info">
+    Welcome, {{ user.first_name }}!
+</div>
+
+<h4>Currently Available Tools:</h4>
+<ul>
+    <li>View Profile</li>
+    <li>Change your Password</li>
+    <li>Log out securely</li>
+</ul>
+
+<h4 class="mt-4 text-muted">Coming Soon:</h4>
+<ul class="text-muted">
+    <li>View Student Support Tickets</li>
+    <li>Handle Refund Requests</li>
+    <li>Unlock User Accounts</li>
+</ul>
+{% endblock %}

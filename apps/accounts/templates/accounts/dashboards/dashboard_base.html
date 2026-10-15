@@ -1,0 +1,70 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block sidebar collapse" style="background-color: var(--color-sidebar); min-height: 80vh; border-right: 1px solid #1e293b;">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" style="color: var(--color-progress); font-weight: bold;" href="{% url user.role|lower|add:'_dashboard' %}">
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" href="#">
+                            My Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" href="{% url 'password_change' %}">
+                            Change Password
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" href="{% url 'logout' %}">
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+
+                <hr class="text-secondary">
+
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Upcoming Features</span>
+                </h6>
+                <ul class="nav flex-column mb-2">
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary disabled" href="#" tabindex="-1" aria-disabled="true">
+                            Courses / Content
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary disabled" href="#" tabindex="-1" aria-disabled="true">
+                            Support Tickets
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-md-9 col-lg-10 ms-sm-auto px-4">
+            
+            <!-- SUCCESS/ERROR MESSAGES BLOCK ADDED HERE -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block dashboard_content %}
+            <!-- Role specific content goes here -->
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2 class="text-center mb-4">Create Student Account</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">First Name</label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}<div class="text-danger small">{{ form.first_name.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Last Name</label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}<div class="text-danger small">{{ form.last_name.errors }}</div>{% endif %}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email Address</label>
+            <input type="email" name="email" class="form-control" required value="{{ form.email.value|default:'' }}">
+            {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors }}</div>{% endif %}
+        </div>
+
+                <div class="mb-3">
+            <label class="form-label">Phone Number</label>
+            <input type="text" name="phone_number" class="form-control" placeholder="+919876543210" value="{{ form.phone_number.value|default:'' }}">
+            {% if form.phone_number.errors %}
+                <div class="text-danger small mt-1">
+                    {{ form.phone_number.errors|join:", " }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Password</label>
+                {{ form.password1 }}
+                {% if form.password1.errors %}<div class="text-danger small">{{ form.password1.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Confirm Password</label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}<div class="text-danger small">{{ form.password2.errors }}</div>{% endif %}
+            </div>
+        </div>
+        <div class="text-danger small mb-3">{{ form.password1.help_text }}</div>
+
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" name="terms_accepted" required id="terms">
+            <label class="form-check-label" for="terms">I accept the Terms and Privacy Policy</label>
+            {% if form.terms_accepted.errors %}<div class="text-danger small">{{ form.terms_accepted.errors }}</div>{% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Register</button>
+        <p class="text-center mt-3">Already have an account? <a href="{% url 'login' %}">Login</a></p>
+    </form>
+</div>
+
+<!-- CSS tweak to make default Django form inputs look good with Bootstrap -->
+<style>
+input[type="text"], input[type="email"], input[type="password"] {
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+}
+</style>
+{% endblock %}
