@@ -1,69 +1,1028 @@
-
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light" data-fontsize="A">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Learning Platform{% endblock %}</title>
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
-            --color-sidebar: #0F172A;
-            --color-primary: #0891B2;
-            --color-action: #A3E635;
-            --color-progress: #22D3EE;
-            --color-page-bg: #F4F7FA;
-            --color-text: #0B1220;
+            /* Ivory & Burnt Orange Palette */
+            --color-bg: #FDFCF5; /* Ivory */
+            --color-surface: #FFFFFF;
+            --color-text: #2D2D2D; /* Dark Charcoal */
+            --color-text-muted: #6B7280;
+            --color-primary: #CC5500; /* Burnt Orange */
+            --color-primary-hover: #B54C00;
+            --color-action: #2D2D2D; /* Dark Charcoal for contrast */
+            --color-action-hover: #000000;
+            --color-border: #E5E7EB;
+            --color-error: #DC2626;
+            --color-error-bg: #FEF2F2;
+            --color-success: #059669;
+
+            --base-font-size: 18px;
+            --space-unit: 8px;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --transition: 180ms ease;
         }
+
+        [data-fontsize="A+"] { --base-font-size: 20px; }
+        [data-fontsize="A++"] { --base-font-size: 24px; }
+        
+        [data-theme="dark"] {
+            --color-bg: #1A1A1A;
+            --color-surface: #2D2D2D;
+            --color-text: #FDFCF5;
+            --color-text-muted: #9CA3AF;
+            --color-border: #4B5563;
+            --color-error-bg: #450a0a;
+        }
+
+        html { scroll-behavior: smooth; }
         body { 
-            background-color: var(--color-page-bg); 
+            background-color: var(--color-bg); 
             color: var(--color-text);
+            font-size: var(--base-font-size);
+            line-height: 1.6;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-        .auth-container { 
-            max-width: 500px; 
-            margin: 50px auto; 
-            padding: 20px; 
-            background: white; 
-            border-radius: 10px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+
+        .skip-link { position: absolute; left: -999px; top: 0; z-index: 9999; background: var(--color-primary); color: white; padding: 16px; border-radius: 0 0 8px 0; }
+        .skip-link:focus { left: 0; }
+
+        a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+
+        .header-nav { 
+    background-color: var(--color-surface); 
+    border-bottom: 1px solid var(--color-border); 
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); 
+    position: sticky; 
+    top: 0; 
+    z-index: 1000; 
+}
+        .brand-text { color: var(--color-primary); font-weight: 800; font-size: 1.5rem; text-decoration: none; }
+
+        .auth-card { max-width: 540px; margin: 48px auto; padding: 40px; background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
+
+        .form-control { min-height: 52px; font-size: var(--base-font-size); border-radius: var(--radius-sm); border: 2px solid var(--color-border); background-color: var(--color-surface); color: var(--color-text); }
+        .form-control:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(204, 85, 0, 0.15); }
+        .form-label { font-weight: 600; margin-bottom: 8px; display: block; }
+
+        .btn { min-height: 48px; font-size: var(--base-font-size); font-weight: 600; border-radius: var(--radius-sm); transition: all var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background-color: var(--color-primary); border-color: var(--color-primary); color: white; }
+        .btn-primary:hover { background-color: var(--color-primary-hover); border-color: var(--color-primary-hover); }
+        .btn-action { background-color: var(--color-action); border-color: var(--color-action); color: white; }
+        .btn-action:hover { background-color: var(--color-action-hover); }
+        .btn-outline { background: transparent; border: 2px solid var(--color-border); color: var(--color-text); }
+        .btn-outline:hover { background: var(--color-bg); border-color: var(--color-text-muted); }
+
+        .invalid-feedback, .text-danger { color: var(--color-error) !important; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+        .alert-danger { background-color: var(--color-error-bg); color: var(--color-error); border: 2px solid var(--color-error); border-radius: var(--radius-sm); font-weight: 500; }
+
+        .password-wrapper { position: relative; }
+        .password-toggle { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--color-primary); font-weight: 700; cursor: pointer; z-index: 10; min-height: auto; padding: 4px 8px; border-radius: 4px; }
+
+        .header-controls button { background: var(--color-bg); border: 2px solid var(--color-border); border-radius: var(--radius-sm); padding: 8px 12px; cursor: pointer; color: var(--color-text); font-weight: 700; min-height: 40px; transition: all var(--transition); }
+        .header-controls button:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+        .mobile-bottom-nav { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: var(--color-surface); border-top: 1px solid var(--color-border); padding: 8px 0; z-index: 1000; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); }
+        .mobile-bottom-nav a { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--color-text-muted); text-decoration: none; font-size: 14px; font-weight: 600; }
+        .mobile-bottom-nav a.active { color: var(--color-primary); }
+        @media (max-width: 768px) { .mobile-bottom-nav { display: flex; justify-content: space-around; } body { padding-bottom: 90px; } }
+
+        /* Modal Styling */
+        .modal-content { background: var(--color-surface); border-radius: var(--radius-lg); border: none; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+        .modal-header { border-bottom: 1px solid var(--color-border); padding: 24px; }
+        .modal-body { padding: 24px; }
+
+        /* Compact Iconic Buttons */
+.header-controls { 
+    display: inline-flex; 
+    align-items: center; 
+    justify-content: center;
+    width: 38px; 
+    height: 38px; 
+    padding: 0; 
+    background: var(--color-bg); 
+    border: 1px solid var(--color-border); 
+    border-radius: 8px; 
+    color: var(--color-text); 
+    font-weight: 600; 
+    transition: all var(--transition);
+}
+.header-controls:hover { 
+    border-color: var(--color-primary); 
+    color: var(--color-primary); 
+    background: #fff; 
+}
+
+/* Compact Text Buttons */
+.btn-sm { 
+    min-height: 38px; 
+    padding: 0 16px; 
+    font-size: 0.9rem; 
+    border-radius: 8px; 
+}
+
+        /* Premium Modal Styling */
+        .modal-content { 
+            background: var(--color-surface); 
+            border-radius: 20px; 
+            border: none; 
+            box-shadow: 0 20px 40px -12px rgba(0,0,0,0.2); 
+            overflow: hidden;
         }
-        .navbar-dark { background-color: var(--color-sidebar) !important; }
-        .btn-primary { background-color: var(--color-primary); border-color: var(--color-primary); }
-        .btn-primary:hover { background-color: #0e7490; border-color: #0e7490; }
-        .btn-action { background-color: var(--color-action); border-color: var(--color-action); color: var(--color-text); font-weight: bold; }
-        .btn-action:hover { background-color: #84cc16; border-color: #84cc16; color: var(--color-text); }
+        .premium-modal-body { padding: 32px; }
+        
+        .premium-close {
+            position: absolute; top: 16px; right: 16px;
+            background: var(--color-bg); border-radius: 50%;
+            width: 32px; height: 32px; opacity: 0.5; z-index: 10;
+        }
+        .premium-close:hover { opacity: 1; }
+
+        .premium-icon-wrapper {
+            width: 56px; height: 56px; background: var(--accent-tint);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 16px auto; color: var(--accent);
+        }
+
+        .premium-modal-title {
+            font-family: 'Playfair Display', serif; font-weight: 600;
+            font-size: 1.75rem; color: var(--text); margin-bottom: 4px;
+        }
+        .premium-modal-subtitle {
+            color: var(--muted); font-size: 0.95rem; margin-bottom: 24px;
+        }
+
+        /* Input Groups - Standard Compact Size */
+        .premium-input-group { position: relative; margin-bottom: 12px; }
+        .input-icon {
+            position: absolute; left: 14px; top: 50%;
+            transform: translateY(-50%); color: var(--muted);
+            z-index: 2; pointer-events: none;
+        }
+            .premium-input {
+            padding-left: 40px !important; 
+            height: 40px !important; /* Slightly shorter */
+            font-size: 14px;
+            border: 1px solid var(--border) !important;
+            background: var(--color-bg) !important;
+            border-radius: 8px !important;
+        }
+
+        .premium-input:focus {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 3px var(--accent-tint) !important;
+            background: var(--color-surface) !important;
+        }
+
+        /* Eye Icon Toggle */
+        .password-toggle-icon {
+            position: absolute; right: 12px; top: 50%;
+            transform: translateY(-50%);
+            background: none; border: none; color: var(--muted);
+            cursor: pointer; z-index: 3; padding: 4px;
+            display: flex; align-items: center;
+        }
+        .password-toggle-icon:hover { color: var(--accent); }
+
+        .premium-btn {
+            height: 40px !important; /* Standard compact height */
+            font-size: 0.9rem; font-weight: 700; border-radius: 8px;
+            margin-top: 8px;
+        }
+
+        .premium-link { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        .premium-link:hover { text-decoration: underline; }
+
+        .premium-divider { text-align: center; position: relative; margin: 16px 0; }
+        .premium-divider::before {
+            content: ''; position: absolute; top: 50%; left: 0; width: 100%;
+            height: 1px; background: var(--border);
+        }
+        .premium-divider span {
+            background: var(--color-surface); padding: 0 12px;
+            position: relative; color: var(--muted); font-size: 0.85rem;
+        }
+                /* Registration Specific Styling */
+        .register-modal-body { padding: 32px; max-height: 85vh; overflow-y: auto; }
+        .register-modal-body::-webkit-scrollbar { width: 6px; }
+        .register-modal-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        
+        .register-title {
+            font-family: 'Playfair Display', serif; font-weight: 600;
+            font-size: 1.75rem; color: var(--text); margin-bottom: 4px;
+        }
+        .register-subtitle {
+            color: var(--muted); font-size: 0.95rem; margin-bottom: 20px;
+        }
+
+        .field-error {
+            color: var(--color-error); font-size: 0.8rem; margin-top: 4px; margin-bottom: 8px;
+            display: flex; align-items: center; gap: 4px; font-weight: 500;
+        }
+        .field-error::before { content: '⚠'; font-size: 0.9rem; }
+
+        .password-checklist {
+            background: var(--color-bg); border: 1px solid var(--border);
+            border-radius: 8px; padding: 12px 16px; margin: 8px 0 12px 0;
+        }
+        .password-checklist p {
+            font-size: 0.8rem; font-weight: 600; color: var(--muted);
+            margin-bottom: 6px;
+        }
+        .password-checklist ul {
+            list-style: none; padding: 0; margin: 0;
+            display: flex; flex-wrap: wrap; gap: 6px;
+        }
+        .password-checklist li {
+            font-size: 0.78rem; color: var(--muted);
+            display: flex; align-items: center; gap: 4px;
+            transition: color 0.2s;
+        }
+        .password-checklist li.valid { color: #059669; font-weight: 600; }
+        .password-checklist li .check-icon {
+            width: 16px; height: 16px; border-radius: 50%;
+            border: 1px solid var(--muted); display: flex;
+            align-items: center; justify-content: center;
+            font-size: 10px; transition: all 0.2s;
+        }
+        .password-checklist li.valid .check-icon {
+            background: #059669; border-color: #059669; color: white;
+        }
+
+        .terms-group {
+            display: flex; align-items: flex-start; gap: 8px; margin: 12px 0;
+        }
+        .terms-group input[type="checkbox"] {
+            width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent);
+        }
+        .terms-group label { font-size: 0.85rem; color: var(--text); cursor: pointer; }
+
+        .success-banner {
+            background: #ECFDF5; border: 1px solid #059669;
+            border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 8px; color: #047857;
+            font-weight: 600; font-size: 0.9rem;
+        }
+
+        .register-modal-body { padding: 24px; max-height: 85vh; overflow-y: auto; }
+        .register-modal-body .form-label { margin-bottom: 4px; }
+        .register-modal-body .premium-input-group { margin-bottom: 8px; }
+
+                .password-checklist {
+            background: var(--color-bg); border: 1px solid var(--border);
+            border-radius: 8px; padding: 8px 12px; margin: 4px 0 8px 0;
+        }
+        .password-checklist p {
+            font-size: 0.75rem; font-weight: 600; color: var(--muted);
+            margin-bottom: 4px;
+        }
+        .password-checklist ul {
+            list-style: none; padding: 0; margin: 0;
+            display: flex; flex-wrap: wrap; gap: 4px 12px;
+        }
+        .password-checklist li {
+            font-size: 0.72rem; color: var(--muted);
+            display: flex; align-items: center; gap: 3px;
+            transition: color 0.2s;
+        }
+        .password-checklist li.valid { color: #059669; font-weight: 600; }
+        .password-checklist li .check-icon {
+            width: 14px; height: 14px; border-radius: 50%;
+            border: 1px solid var(--muted); display: flex;
+            align-items: center; justify-content: center;
+            font-size: 9px; transition: all 0.2s;
+        }
+        .password-checklist li.valid .check-icon {
+            background: #059669; border-color: #059669; color: white;
+        }
+            /* Dashboard Layout */
+    .dashboard-wrapper {
+        display: flex;
+        min-height: calc(100vh - 60px); /* Header is ~60px, sidebar fills rest */
+        width: 100%;
+        margin-top: 0; /* No gap below header */
+    }
+    
+    .dash-sidebar {
+        background: var(--color-surface);
+        border-right: 1px solid var(--color-border);
+        width: 240px;
+        flex-shrink: 0;
+        padding: 24px 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: sticky;
+        top: 60px; /* Stick right below the header */
+        height: calc(100vh - 60px);
+        overflow-y: auto;
+    }
+    
+    .dash-main {
+        flex: 1;
+        padding: 24px 32px;
+        overflow-x: auto;
+    }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/" style="color: var(--color-action); font-weight: bold;">Learning Platform</a>
-            <div class="d-flex">
-                {% if user.is_authenticated %}
-                    <span class="navbar-text text-light me-3">Hi, {{ user.first_name }} ({{ user.role|title }})</span>
-                    <form action="{% url 'logout' %}" method="post" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
-                    </form>
-                {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm me-2">Login</a>
-                    <a href="{% url 'register' %}" class="btn btn-action btn-sm">Sign Up</a>
-                {% endif %}
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <header class="header-nav">
+        <div class="container d-flex align-items-center justify-content-between py-3">
+            <a href="{% url 'home' %}" class="d-flex align-items-center text-decoration-none gap-2">
+    <img src="{% static 'img/eduvia-logo.png' %}" alt="Eduvia Logo" style="height: 45px; width: 45px; object-fit: cover; border-radius: 50%;">
+    <span class="brand-text">Eduvia</span>
+</a>
+            
+           <div class="d-flex align-items-center gap-2">
+    <!-- Font Size Controls (Compact) -->
+    
+    
+    <!-- Dark Mode (Compact Icon) -->
+   
+
+    {% if user.is_authenticated %}
+        <span class="navbar-text me-2 d-none d-md-inline" style="color: var(--color-text-muted); font-size: 0.9rem;">Hi, {{ user.first_name }}</span>
+        <button onclick="confirmLogout()" class="btn btn-outline btn-sm">Log out</button>
+    {% else %}
+        <button onclick="openModal('loginModal')" class="btn btn-outline btn-sm">Log in</button>
+        <button onclick="openModal('registerModal')" class="btn btn-primary btn-sm">Sign up</button>
+    {% endif %}
+</div>
+
+    </header>
+
+               <main id="main-content">
+        {% if messages %}
+            <div class="container">
+                <div id="toast-container" aria-live="polite" class="mt-4">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="min-width: 300px;">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% block content_wrapper %}
+            <div class="container" style="margin-top: 24px;">
+                {% block content %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </main>
+
+    {% if user.is_authenticated and user.role == 'STUDENT' %}
+    <nav class="mobile-bottom-nav d-md-none" aria-label="Mobile navigation">
+        <a href="{% url 'student_dashboard' %}" class="active" aria-current="page">🏠 Home</a>
+        <a href="#">📚 Courses</a>
+        <a href="#">🎯 Practice</a>
+        <a href="#">👤 Profile</a>
+    </nav>
+    {% endif %}
+
+    <!-- Dynamic Modals Container -->
+            <!-- Login Modal -->
+                <!-- Login Modal -->
+        <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <button type="button" class="btn-close premium-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="modal-body premium-modal-body">
+                        <div class="text-center">
+                            <div class="premium-icon-wrapper">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </div>
+                            <h4 class="premium-modal-title">Welcome back</h4>
+                            <p class="premium-modal-subtitle">Sign in to continue learning.</p>
+                        </div>
+
+                         {% if messages and active_modal == 'loginModal' %}
+                            {% for message in messages %}
+                               <div class="alert alert-danger text-center mb-3" role="alert" style="font-size: 14px; padding: 10px;">
+                                  {{ message }}
+                               </div>
+                            {% endfor %}
+                         {% endif %}
+
+{% if login_form and login_form.errors and active_modal == 'loginModal' %}
+    <div class="alert alert-danger text-center mb-3" role="alert" style="font-size: 14px; padding: 10px;">
+        {% for field, errors in login_form.errors.items %}
+            {% for error in errors %}
+                <div>{{ error }}</div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+{% endif %}
+
+                        <form method="post" action="{% url 'login' %}">
+                            {% csrf_token %}
+                            <div class="premium-input-group">
+                                <span class="input-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                </span>
+                                <input type="text" name="identifier" class="form-control premium-input" placeholder="Email or Phone" required value="{{ login_form.identifier.value|default:'' }}">
+                            </div>
+                            
+                            <div class="premium-input-group">
+                                <span class="input-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                </span>
+                                <input type="password" name="password" id="modal_password" class="form-control premium-input" placeholder="Password" required style="padding-right: 40px !important;">
+                                <button type="button" class="password-toggle-icon" onclick="togglePasswordIcon(this)">
+                                    <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    <svg class="eye-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-10-8-10-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                                </button>
+                            </div>
+
+                            <div class="text-end mb-3 mt-1">
+                                <a href="#" onclick="openModal('resetModal')" class="premium-link">Forgot password?</a>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 premium-btn">Log in</button>
+
+                            <div class="premium-divider"><span>or</span></div>
+
+                            <div class="text-center" style="font-size: 0.9rem;">
+                                <span style="color: var(--muted);">No account? <a href="#" onclick="openModal('registerModal')" class="premium-link" style="color: var(--text); font-weight: 700;">Sign up</a></span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
-    </nav>
+                <!-- Register Modal -->
+        <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+                <div class="modal-content">
+                    <button type="button" class="btn-close premium-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="modal-body register-modal-body">
+                        <div class="text-center mb-3">
+                            <h4 class="register-title">Create your account</h4>
+                            <p class="register-subtitle">Join Eduvia and start learning today.</p>
+                        </div>
 
-   
-           
+                 {% if messages and active_modal == 'registerModal' %}
+    {% for message in messages %}
+        {% if 'success' in message.tags %}
+            <div class="success-banner">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22,4 12,14.01 9,11.01"></polyline></svg>
+                {{ message }}
+            </div>
+        {% else %}
+            <div class="alert alert-danger" role="alert" style="font-size: 14px; padding: 10px; border-radius: 8px; margin-bottom: 12px;">
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
 
-        
-    <div class="container mt-4">
-        {% block content %}
-        {% endblock %}
+{% if register_form and register_form.errors and active_modal == 'registerModal' %}
+    <div class="alert alert-danger" role="alert" style="font-size: 14px; padding: 10px; border-radius: 8px; margin-bottom: 12px;">
+        {% for field, errors in register_form.errors.items %}
+            {% for error in errors %}
+                <div>{{ error }}</div>
+            {% endfor %}
+        {% endfor %}
     </div>
+{% endif %}
 
-    <!-- Bootstrap 5 JS -->
+                        <form method="post" action="{% url 'register' %}" id="registerFormModal" onsubmit="return validateRegisterForm()">
+                            {% csrf_token %}
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label" style="font-size: 0.85rem; font-weight: 600;">First name *</label>
+                                    <div class="premium-input-group">
+                                        <span class="input-icon">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                        </span>
+                                        <input type="text" name="first_name" id="reg_first_name" class="form-control premium-input" placeholder="John" required value="{{ register_form.first_name.value|default:'' }}">
+                                    </div>
+                                    <div id="err_first_name" class="field-error" style="display:none;">First name is required.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" style="font-size: 0.85rem; font-weight: 600;">Last name</label>
+                                    <div class="premium-input-group">
+                                        <span class="input-icon">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                        </span>
+                                        <input type="text" name="last_name" id="reg_last_name" class="form-control premium-input" placeholder="Doe" value="{{ register_form.last_name.value|default:'' }}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <label class="form-label mt-2" style="font-size: 0.85rem; font-weight: 600;">Email address *</label>
+                            <div class="premium-input-group">
+                                <span class="input-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                </span>
+                                <input type="email" name="email" id="reg_email" class="form-control premium-input" placeholder="you@example.com" required value="{{ register_form.email.value|default:'' }}">
+                            </div>
+                            <div id="err_email" class="field-error" style="display:none;">Valid email is required.</div>
+
+                            <label class="form-label mt-2" style="font-size: 0.85rem; font-weight: 600;">Phone number <span style="font-weight: 400; color: var(--muted);">(Optional)</span></label>
+                            <div class="premium-input-group">
+                                <span class="input-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                </span>
+                                <input type="text" name="phone_number" id="reg_phone" class="form-control premium-input" placeholder="+91 9876543289" value="{{ register_form.phone_number.value|default:'' }}">
+                            </div>
+                            <div id="err_phone" class="field-error" style="display:none;">Must include country code (e.g., +91).</div>
+
+                            <label class="form-label mt-2" style="font-size: 0.85rem; font-weight: 600;">Password *</label>
+                            <div class="premium-input-group">
+                                <span class="input-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                </span>
+                                <input type="password" name="password1" id="reg_password1" class="form-control premium-input" placeholder="Min 9 characters" required oninput="checkPasswordRules()" style="padding-right: 40px !important;">
+                                <button type="button" class="password-toggle-icon" onclick="togglePasswordIcon(this)">
+                                    <svg class="eye-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    <svg class="eye-closed" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-10-8-10-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                                </button>
+                            </div>
+                            
+                            <div class="password-checklist" id="passwordChecklist">
+                                <p>Password must contain:</p>
+                                <ul>
+                                    <li id="rule_length" data-rule="length"><span class="check-icon">✓</span> 9+ chars</li>
+                                    <li id="rule_letter" data-rule="letter"><span class="check-icon">✓</span> Letters</li>
+                                    <li id="rule_number" data-rule="number"><span class="check-icon">✓</span> Numbers</li>
+                                    <li id="rule_symbol" data-rule="symbol"><span class="check-icon">✓</span> Symbols</li>
+                                </ul>
+                            </div>
+
+                            <label class="form-label mt-1" style="font-size: 0.85rem; font-weight: 600;">Confirm password *</label>
+                            <div class="premium-input-group">
+                                <span class="input-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                </span>
+                                <input type="password" name="password2" id="reg_password2" class="form-control premium-input" placeholder="Re-enter password" required oninput="checkPasswordMatch()" style="padding-right: 40px !important;">
+                                <button type="button" class="password-toggle-icon" onclick="togglePasswordIcon(this)">
+                                    <svg class="eye-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    <svg class="eye-closed" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-10-8-10-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                                </button>
+                            </div>
+                            <div id="err_password2" class="field-error" style="display:none;">Passwords do not match.</div>
+
+                            <div class="terms-group">
+                                <input type="checkbox" name="terms_accepted" required id="modal_terms">
+                                <label for="modal_terms">I accept the <a href="#" class="premium-link">Terms</a> and <a href="#" class="premium-link">Privacy Policy</a></label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 premium-btn">Create account</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Reset Password Modal -->
+        <div class="modal fade" id="resetModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reset password</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" action="{% url 'password_reset' %}">
+                            {% csrf_token %}
+                            <p class="text-muted mb-3">Enter your email address and we'll send you a link to reset your password.</p>
+                            <div class="mb-3">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" name="email" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Send reset link</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Logout Confirmation Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: var(--color-surface); border-radius: 20px; border: none; box-shadow: 0 20px 50px rgba(0,0,0,0.15); overflow: hidden;">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; top: 16px; right: 16px; background: var(--color-bg); border-radius: 50%; width: 32px; height: 32px; opacity: 0.5; z-index: 10; padding: 0; display: flex; align-items: center; justify-content: center;"></button>
+                
+                <div class="modal-body p-5 text-center">
+                    <!-- Warning Icon -->
+                    <div style="width: 64px; height: 64px; background: #FEF3C7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; color: #D97706;">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </div>
+                    
+                    <h4 class="mb-2" style="font-family: 'Playfair Display', serif; font-weight: 600; font-size: 1.75rem; color: var(--text);">Log out of your account?</h4>
+                    <p class="text-muted mb-4" style="font-family: 'DM Sans', sans-serif; font-size: 0.95rem;">You will need to enter your password again to log back in.</p>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline w-100" data-bs-dismiss="modal" style="height: 44px; font-weight: 600; border-radius: 8px; border: 1px solid var(--border); color: var(--text);">Cancel</button>
+                        <form action="{% url 'logout' %}" method="post" class="w-100">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary w-100" style="height: 44px; font-weight: 600; border-radius: 8px; background-color: #DC2626; border-color: #DC2626; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                                Yes, log out
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if user.is_authenticated %}
+    
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <button type="button" class="btn-close premium-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-body premium-modal-body">
+                <div class="text-center">
+                    <div class="premium-icon-wrapper">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    </div>
+                    <h4 class="premium-modal-title">Change Password</h4>
+                    <p class="premium-modal-subtitle">Choose a strong, new password for your account.</p>
+                </div>
+
+                <div id="cpSuccess" class="success-banner" style="display: none;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22,4 12,14.01 9,11.01"></polyline></svg>
+                    <span id="cpSuccessMsg">Your password has been changed successfully.</span>
+                </div>
+
+                <div id="cpGeneralError" class="alert alert-danger" role="alert" style="display: none; font-size: 14px; padding: 10px; border-radius: 8px;"></div>
+
+                <form id="changePasswordForm" onsubmit="submitChangePassword(event)">
+                    {% csrf_token %}
+                    
+                    <!-- Old Password -->
+                    <label class="form-label" style="font-size: 0.85rem; font-weight: 600;">Old Password *</label>
+                    <div class="premium-input-group">
+                        <span class="input-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        </span>
+                        <input type="password" name="old_password" id="cp_old_password" class="form-control premium-input" placeholder="Enter your current password" required style="padding-right: 40px !important;">
+                        <button type="button" class="password-toggle-icon" onclick="togglePasswordIcon(this)">
+                            <svg class="eye-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            <svg class="eye-closed" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-10-8-10-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                        </button>
+                    </div>
+                    <div id="err_cp_old" class="field-error" style="display:none;"></div>
+
+                    <!-- New Password -->
+                    <label class="form-label mt-2" style="font-size: 0.85rem; font-weight: 600;">New Password *</label>
+                    <div class="premium-input-group">
+                        <span class="input-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        </span>
+                        <input type="password" name="new_password1" id="cp_new_password1" class="form-control premium-input" placeholder="Enter new password" required oninput="checkCpRules()" style="padding-right: 40px !important;">
+                        <button type="button" class="password-toggle-icon" onclick="togglePasswordIcon(this)">
+                            <svg class="eye-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            <svg class="eye-closed" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-10-8-10-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Password Rules Checklist -->
+                    <div class="password-checklist" id="cpPasswordChecklist">
+                        <p>Password must contain:</p>
+                        <ul>
+                            <li id="cp_rule_length" data-rule="length"><span class="check-icon">✓</span> 10+ chars</li>
+                            <li id="cp_rule_upper" data-rule="upper"><span class="check-icon">✓</span> Uppercase</li>
+                            <li id="cp_rule_lower" data-rule="lower"><span class="check-icon">✓</span> Lowercase</li>
+                            <li id="cp_rule_number" data-rule="number"><span class="check-icon">✓</span> Number</li>
+                            <li id="cp_rule_symbol" data-rule="symbol"><span class="check-icon">✓</span> Symbol</li>
+                            <li id="cp_rule_diff" data-rule="diff"><span class="check-icon">✓</span> Differs from old</li>
+                        </ul>
+                    </div>
+                    <div id="err_cp_new1" class="field-error" style="display:none;"></div>
+
+                    <!-- Confirm Password -->
+                    <label class="form-label mt-1" style="font-size: 0.85rem; font-weight: 600;">Confirm New Password *</label>
+                    <div class="premium-input-group">
+                        <span class="input-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        </span>
+                        <input type="password" name="new_password2" id="cp_new_password2" class="form-control premium-input" placeholder="Re-enter new password" required oninput="checkCpMatch()" style="padding-right: 40px !important;">
+                        <button type="button" class="password-toggle-icon" onclick="togglePasswordIcon(this)">
+                            <svg class="eye-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            <svg class="eye-closed" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-10-8-10-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                        </button>
+                    </div>
+                    <div id="err_cp_new2" class="field-error" style="display:none;"></div>
+
+                    <button type="submit" class="btn btn-primary w-100 premium-btn" id="cpSubmitBtn">
+                        <span id="cpBtnText">Update Password</span>
+                        <span id="cpBtnSpinner" style="display: none;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="animation: spin 1s linear infinite;"><circle cx="12" cy="12" r="10" stroke-dasharray="40" stroke-dashoffset="10"></circle></svg>
+                        </span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+{% endif %}
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function setTextSize(size) { document.documentElement.setAttribute('data-fontsize', size); localStorage.setItem('fontSize', size); }
+        function toggleDarkMode() { const current = document.documentElement.getAttribute('data-theme'); const next = current === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', next); localStorage.setItem('theme', next); }
+        const savedSize = localStorage.getItem('fontSize'); const savedTheme = localStorage.getItem('theme');
+        if(savedSize) document.documentElement.setAttribute('data-fontsize', savedSize);
+        if(savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+
+        function confirmLogout() { new bootstrap.Modal(document.getElementById('logoutModal')).show(); }
+
+        function openModal(modalId) {
+            // Hide all modals first
+            const modals = ['loginModal', 'registerModal', 'resetModal'];
+            modals.forEach(id => {
+                const m = document.getElementById(id);
+                if (m) {
+                    const instance = bootstrap.Modal.getInstance(m);
+                    if (instance) instance.hide();
+                }
+            });
+            // Show the requested modal
+            new bootstrap.Modal(document.getElementById(modalId)).show();
+        }
+
+        function togglePassword(btn) {
+            const input = btn.previousElementSibling;
+            if (input.type === 'password') { input.type = 'text'; btn.textContent = 'Hide'; } 
+            else { input.type = 'password'; btn.textContent = 'Show'; }
+        }
+
+        setTimeout(() => {
+            document.querySelectorAll('#toast-container .alert').forEach(el => { bootstrap.Alert.getOrCreateInstance(el).close(); });
+        }, 8000);
+
+        // Auto-open modal if form validation failed on backend
+        {% if active_modal %}
+            window.addEventListener('DOMContentLoaded', (event) => {
+                new bootstrap.Modal(document.getElementById('{{ active_modal }}')).show();
+            });
+        {% endif %}
+                function togglePasswordIcon(btn) {
+            const input = btn.parentElement.querySelector('input');
+            const eyeOpen = btn.querySelector('.eye-open');
+            const eyeClosed = btn.querySelector('.eye-closed');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeOpen.style.display = 'none';
+                eyeClosed.style.display = 'block';
+            } else {
+                input.type = 'password';
+                eyeOpen.style.display = 'block';
+                eyeClosed.style.display = 'none';
+            }
+        }
+
+                function checkPasswordRules() {
+            const val = document.getElementById('reg_password1').value;
+            const rules = {
+                length: val.length >= 9,
+                letter: /[a-zA-Z]/.test(val),
+                number: /[0-9]/.test(val),
+                symbol: /[!@#$%^&*(),.?":{}|<>]/.test(val)
+            };
+            Object.keys(rules).forEach(rule => {
+                const li = document.getElementById('rule_' + rule);
+                if (li) {
+                    if (rules[rule]) li.classList.add('valid');
+                    else li.classList.remove('valid');
+                }
+            });
+            checkPasswordMatch();
+        }
+
+        function checkPasswordMatch() {
+            const p1 = document.getElementById('reg_password1').value;
+            const p2 = document.getElementById('reg_password2').value;
+            const err = document.getElementById('err_password2');
+            if (p2.length > 0 && p1 !== p2) {
+                err.style.display = 'flex';
+            } else {
+                err.style.display = 'none';
+            }
+        }
+
+        function validateRegisterForm() {
+            let valid = true;
+            const firstName = document.getElementById('reg_first_name').value.trim();
+            const email = document.getElementById('reg_email').value.trim();
+            const phone = document.getElementById('reg_phone').value.trim();
+            const password = document.getElementById('reg_password1').value;
+            const password2 = document.getElementById('reg_password2').value;
+
+            // First name
+            document.getElementById('err_first_name').style.display = firstName ? 'none' : 'flex';
+            if (!firstName) valid = false;
+
+            // Email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            document.getElementById('err_email').style.display = (email && emailRegex.test(email)) ? 'none' : 'flex';
+            if (!email || !emailRegex.test(email)) valid = false;
+
+            // Phone (if provided)
+            if (phone) {
+                const phoneRegex = /^\+\d{1,4}\s?\d{10}$/;
+                document.getElementById('err_phone').style.display = phoneRegex.test(phone) ? 'none' : 'flex';
+                if (!phoneRegex.test(phone)) valid = false;
+            } else {
+                document.getElementById('err_phone').style.display = 'none';
+            }
+
+            // Password match
+            document.getElementById('err_password2').style.display = (password === password2 && password.length > 0) ? 'none' : 'flex';
+            if (password !== password2) valid = false;
+
+            return valid;
+        }
+
+        function validateRegisterForm() {
+    let valid = true;
+    const firstName = document.getElementById('reg_first_name').value.trim();
+    const email = document.getElementById('reg_email').value.trim();
+    const phone = document.getElementById('reg_phone').value.trim();
+    const password = document.getElementById('reg_password1').value;
+    const password2 = document.getElementById('reg_password2').value;
+
+    // First name
+    document.getElementById('err_first_name').style.display = firstName ? 'none' : 'flex';
+    if (!firstName) valid = false;
+
+    // Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    document.getElementById('err_email').style.display = (email && emailRegex.test(email)) ? 'none' : 'flex';
+    if (!email || !emailRegex.test(email)) valid = false;
+
+    // Phone (if provided) - more flexible regex
+    if (phone) {
+        const phoneRegex = /^\+\d{1,4}\s?\d{8,12}$/;
+        document.getElementById('err_phone').style.display = phoneRegex.test(phone) ? 'none' : 'flex';
+        if (!phoneRegex.test(phone)) valid = false;
+    } else {
+        document.getElementById('err_phone').style.display = 'none';
+    }
+
+    // Password match - only check if password2 has content
+    if (password2.length > 0) {
+        document.getElementById('err_password2').style.display = (password === password2) ? 'none' : 'flex';
+        if (password !== password2) valid = false;
+    } else {
+        document.getElementById('err_password2').style.display = 'none';
+    }
+
+    return valid;
+}
+
+        // Change Password Modal Functions
+        function openChangePasswordModal() {
+            // Close the account dropdown first
+            const dropdowns = document.querySelectorAll('.dropdown-menu-account.show');
+            dropdowns.forEach(d => d.classList.remove('show'));
+            
+            // Reset form
+            document.getElementById('changePasswordForm').reset();
+            document.getElementById('cpSuccess').style.display = 'none';
+            document.getElementById('cpGeneralError').style.display = 'none';
+            document.getElementById('err_cp_old').style.display = 'none';
+            document.getElementById('err_cp_new1').style.display = 'none';
+            document.getElementById('err_cp_new2').style.display = 'none';
+            
+            // Reset checklist
+            ['length', 'upper', 'lower', 'number', 'symbol', 'diff'].forEach(rule => {
+                document.getElementById('cp_rule_' + rule).classList.remove('valid');
+            });
+            
+            new bootstrap.Modal(document.getElementById('changePasswordModal')).show();
+        }
+
+        function checkCpRules() {
+            const val = document.getElementById('cp_new_password1').value;
+            const oldVal = document.getElementById('cp_old_password').value;
+            const rules = {
+                length: val.length >= 10,
+                upper: /[A-Z]/.test(val),
+                lower: /[a-z]/.test(val),
+                number: /[0-9]/.test(val),
+                symbol: /[!@#$%^&*(),.?":{}|<>]/.test(val),
+                diff: val.length > 0 && val !== oldVal
+            };
+            Object.keys(rules).forEach(rule => {
+                const li = document.getElementById('cp_rule_' + rule);
+                if (li) {
+                    if (rules[rule]) li.classList.add('valid');
+                    else li.classList.remove('valid');
+                }
+            });
+            checkCpMatch();
+        }
+
+        function checkCpMatch() {
+            const p1 = document.getElementById('cp_new_password1').value;
+            const p2 = document.getElementById('cp_new_password2').value;
+            const err = document.getElementById('err_cp_new2');
+            if (p2.length > 0 && p1 !== p2) {
+                err.style.display = 'flex';
+                err.textContent = 'Passwords do not match.';
+            } else {
+                err.style.display = 'none';
+            }
+        }
+
+        async function submitChangePassword(event) {
+            event.preventDefault();
+            
+            const form = document.getElementById('changePasswordForm');
+            const formData = new FormData(form);
+            
+            // Clear previous errors
+            document.getElementById('cpSuccess').style.display = 'none';
+            document.getElementById('cpGeneralError').style.display = 'none';
+            document.getElementById('err_cp_old').style.display = 'none';
+            document.getElementById('err_cp_new1').style.display = 'none';
+            document.getElementById('err_cp_new2').style.display = 'none';
+            
+            // Show spinner
+            document.getElementById('cpBtnText').textContent = 'Updating...';
+            document.getElementById('cpBtnSpinner').style.display = 'inline-flex';
+            document.getElementById('cpSubmitBtn').disabled = true;
+            
+            try {
+                const response = await fetch('{% url "password_change_api" %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('cpSuccessMsg').textContent = data.message;
+                    document.getElementById('cpSuccess').style.display = 'flex';
+                    form.reset();
+                    ['length', 'upper', 'lower', 'number', 'symbol', 'diff'].forEach(rule => {
+                        document.getElementById('cp_rule_' + rule).classList.remove('valid');
+                    });
+                    setTimeout(() => {
+                        bootstrap.Modal.getInstance(document.getElementById('changePasswordModal')).hide();
+                    }, 2000);
+                } else {
+                    if (data.errors.old_password) {
+                        document.getElementById('err_cp_old').textContent = data.errors.old_password[0];
+                        document.getElementById('err_cp_old').style.display = 'flex';
+                    }
+                    if (data.errors.new_password1) {
+                        document.getElementById('err_cp_new1').textContent = data.errors.new_password1[0];
+                        document.getElementById('err_cp_new1').style.display = 'flex';
+                    }
+                    if (data.errors.new_password2) {
+                        document.getElementById('err_cp_new2').textContent = data.errors.new_password2[0];
+                        document.getElementById('err_cp_new2').style.display = 'flex';
+                    }
+                    if (data.errors.general) {
+                        document.getElementById('cpGeneralError').textContent = data.errors.general[0];
+                        document.getElementById('cpGeneralError').style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                document.getElementById('cpGeneralError').textContent = 'Something went wrong. Please try again.';
+                document.getElementById('cpGeneralError').style.display = 'block';
+            }
+            
+            document.getElementById('cpBtnText').textContent = 'Update Password';
+            document.getElementById('cpBtnSpinner').style.display = 'none';
+            document.getElementById('cpSubmitBtn').disabled = false;
+        }
+    </script>
 </body>
 </html>

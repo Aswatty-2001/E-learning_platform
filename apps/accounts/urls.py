@@ -1,14 +1,15 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from accounts.views import (
+from accounts.views import ( home_view,
     register_view, login_view, logout_view, 
     student_dashboard, admin_dashboard, cm_dashboard, support_dashboard, dashboard_redirect, 
-    CustomPasswordChangeView, CustomPasswordChangeDoneView, 
+    CustomPasswordChangeView, CustomPasswordChangeDoneView, change_password_api,
 )
 
 
 urlpatterns = [
     # Frontend Auth
+    path('', home_view, name='home'),
     path('register/', register_view, name='register'),
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
@@ -38,4 +39,6 @@ urlpatterns = [
      path('password/reset/complete/', auth_views.PasswordResetCompleteView.as_view(
         template_name='accounts/password_reset_complete.html'
     ), name='password_reset_complete'),
+
+    path('password/change/api/', change_password_api, name='password_change_api'),
 ]

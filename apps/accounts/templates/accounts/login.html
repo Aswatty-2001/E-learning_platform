@@ -1,7 +1,9 @@
 {% extends 'accounts/base.html' %}
 {% load static %}
 
+
 {% block title %}Login{% endblock %}
+
 
 {% block content %}
 <style>
@@ -26,7 +28,7 @@
 </style>
 <div class="auth-container">
     <h2 class="text-center mb-4">Login</h2>
-    
+   
     <!-- Error Messages moved INSIDE the card -->
     {% if messages %}
         {% for message in messages %}
@@ -35,6 +37,7 @@
             </div>
         {% endfor %}
     {% endif %}
+
 
     <form method="post">
         {% csrf_token %}
@@ -47,9 +50,9 @@
             <input type="password" name="password" class="form-control" required>
         </div>
         <button type="submit" class="btn btn-action w-100">Login</button>
-        
+       
         <p class="text-center mt-3"><a href="{% url 'password_reset' %}">Forgot Password?</a></p>
-        
+       
         <hr>
         <p class="text-center text-muted small">No account? <a href="{% url 'register' %}">Sign up as Student</a></p>
     </form>
