@@ -36,6 +36,8 @@ INSTALLED_APPS = [
 
     # Local apps
     'accounts',
+    'categories',
+     'courses',
 ]
 
 MIDDLEWARE = [
@@ -152,3 +154,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # Prints emails
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/login/'
+
+MENU_HIDE_EMPTY = False  
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'  # or os.path.join(BASE_DIR, 'media')

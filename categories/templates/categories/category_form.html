@@ -1,0 +1,55 @@
+{% extends 'accounts/dashboards/dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <h1 class="h3 mb-4">{% if cat.pk %}Edit category{% else %}Add category{% endif %}</h1>
+    {% if messages %}{% for m in messages %}<div class="alert alert-{{ m.tags }}">{{ m }}</div>{% endfor %}{% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label">Name *</label>
+        <input type="text" name="name" class="form-control" value="{{ cat.name }}" required>
+        <small class="text-muted">Must be unique under the same parent.</small>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Slug</label>
+        <input type="text" name="slug" class="form-control" value="{{ cat.slug }}">
+        <small class="text-muted">Auto-filled from name ("&" becomes "and"). Editable.</small>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Parent category</label>
+        <select name="parent" class="form-control">
+          <option value="">None (main category)</option>
+          {% for p in parents %}
+            <option value="{{ p.pk }}" {% if cat.parent_id == p.pk %}selected{% endif %}>{{ p.name }}</option>
+          {% endfor %}
+        </select>
+        <small class="text-muted">Leave empty to create a main category.</small>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Menu order</label>
+        <input type="number" name="menu_order" class="form-control" value="{{ cat.menu_order }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea name="description" class="form-control" rows="3">{{ cat.description }}</textarea>
+        <small class="text-muted">Shown at the top of the category page.</small>
+      </div>
+      <div class="mb-3 form-check">
+        <input type="checkbox" name="is_active" class="form-check-input" id="isActive" {% if cat.is_active %}checked{% endif %}>
+        <label class="form-check-label" for="isActive">Active</label>
+      </div>
+      {% if cat.pk %}
+      <div class="card bg-light p-3 mb-3 small text-muted">
+        Created by {{ cat.created_by|default:"—" }} on {{ cat.created_at|date:"Y-m-d" }} ·
+        Last updated by {{ cat.updated_by|default:"—" }} on {{ cat.updated_at|date:"Y-m-d" }}
+      </div>
+      {% endif %}
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a href="{% url 'categories:menu_management' %}" class="btn btn-outline">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

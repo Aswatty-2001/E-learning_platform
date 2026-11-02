@@ -1,0 +1,166 @@
+{% extends 'accounts/dashboards/dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_content %}
+{% block breadcrumb_extra %}
+<li class="breadcrumb-item active" aria-current="page" style="color: var(--color-text);">Content Creators</li>
+{% endblock %}
+<style>
+    .list-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; gap: 16px; }
+    .list-header h1 { font-family: 'Playfair Display', serif; font-weight: 600; color: var(--color-text); margin: 0; }
+    .stats-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.stat-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    width: 160px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.stat-card:hover { border-color: var(--color-primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+.stat-card .stat-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); margin: 0; }
+.stat-card .stat-value { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 600; color: var(--color-text); margin: 0; line-height: 1.2; }
+    .search-box { position: relative; flex: 1; min-width: 240px; max-width: 400px; margin-bottom: 20px; }
+    .search-box input { width: 100%; height: 44px; padding: 0 14px 0 42px; border: 1.5px solid var(--color-border); border-radius: 10px; background: var(--color-surface); color: var(--color-text); font-size: 14px; }
+    .search-box input:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--accent-tint); }
+    .search-box svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted); }
+    
+    .filter-pills { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .filter-pill { padding: 6px 14px; border-radius: 999px; font-size: 0.82rem; font-weight: 600; text-decoration: none; background: var(--color-surface); border: 1px solid var(--color-border); color: var(--color-text); }
+    .filter-pill.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+    .filter-pill:hover { border-color: var(--color-primary); }
+    
+    .list-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; overflow: hidden; }
+    .list-table { width: 100%; margin: 0; }
+    .list-table th { background: var(--color-bg); padding: 14px 16px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); border-bottom: 1px solid var(--color-border); text-align: left; }
+    .list-table td { padding: 14px 16px; border-bottom: 1px solid var(--color-border); font-size: 0.9rem; color: var(--color-text); vertical-align: middle; }
+    .list-table tr:last-child td { border-bottom: none; }
+    .list-table tr:hover { background: var(--color-bg); }
+    .user-cell { display: flex; align-items: center; gap: 12px; }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: var(--accent-tint); color: var(--color-primary); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+    .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .user-name { font-weight: 600; color: var(--color-text); }
+    .badge-pending { background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
+    .badge-approved { background: #ECFDF5; color: #047857; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
+    .badge-rejected { background: #FEF2F2; color: #991B1B; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
+    .resume-link { color: var(--color-primary); font-weight: 600; text-decoration: none; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 4px; }
+    .resume-link:hover { text-decoration: underline; }
+    .btn-view { background: var(--accent-tint); color: var(--color-primary); border: 1px solid var(--color-primary); padding: 6px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+    .btn-view:hover { background: var(--color-primary); color: white; }
+    .empty-state { text-align: center; padding: 48px 20px; color: var(--color-text-muted); }
+</style>
+
+<div class="list-header">
+    <div>
+      
+        <p style="color: var(--color-text-muted); font-size: 0.9rem; margin: 4px 0 0 0;"></p>
+    </div>
+   
+</div>
+
+<div class="stats-row">
+    <a href="{% url 'content_creator_list' %}" class="stat-card">
+        <div class="stat-label">Total Creators</div>
+        <div class="stat-value">{{ total_count }}</div>
+    </a>
+    <a href="{% url 'content_creator_list' %}?status=PENDING" class="stat-card">
+        <div class="stat-label">Pending Approval</div>
+        <div class="stat-value">{{ pending_count }}</div>
+    </a>
+    <a href="{% url 'content_creator_list' %}?status=APPROVED" class="stat-card">
+        <div class="stat-label">Approved</div>
+        <div class="stat-value">{{ approved_count }}</div>
+    </a>
+</div>
+
+<div class="filter-pills">
+    <a href="{% url 'content_creator_list' %}" class="filter-pill {% if not status_filter %}active{% endif %}">All</a>
+    <a href="{% url 'content_creator_list' %}?status=PENDING" class="filter-pill {% if status_filter == 'PENDING' %}active{% endif %}">Pending</a>
+    <a href="{% url 'content_creator_list' %}?status=APPROVED" class="filter-pill {% if status_filter == 'APPROVED' %}active{% endif %}">Approved</a>
+    <a href="{% url 'content_creator_list' %}?status=REJECTED" class="filter-pill {% if status_filter == 'REJECTED' %}active{% endif %}">Rejected</a>
+</div>
+
+<form method="get" class="search-box">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+    <input type="text" name="search" value="{{ search }}" placeholder="Search by name or email..." autocomplete="off">
+    {% if status_filter %}<input type="hidden" name="status" value="{{ status_filter }}">{% endif %}
+</form>
+
+<div class="list-card">
+    <table class="list-table">
+        <thead>
+            <tr>
+                <th>Creator</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Resume</th>
+                <th>Joined</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for creator in creators %}
+            <tr>
+                <td>
+                    <div class="user-cell">
+                        <div class="user-avatar">
+                            {% if creator.content_creator_profile.profile_photo %}
+                                <img src="{{ creator.content_creator_profile.profile_photo.url }}" alt="{{ creator.first_name }}">
+                            {% else %}
+                                {{ creator.first_name|first|upper }}
+                            {% endif %}
+                        </div>
+                        <div>
+                            <div class="user-name">{{ creator.first_name }} {{ creator.last_name }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td style="font-size: 0.85rem;">{{ creator.email }}</td>
+                <td>
+                    {% with status=creator.content_creator_profile.approval_status %}
+                        {% if status == 'PENDING' %}
+                            <span class="badge-pending">● Pending</span>
+                        {% elif status == 'APPROVED' %}
+                            <span class="badge-approved">● Approved</span>
+                        {% elif status == 'REJECTED' %}
+                            <span class="badge-rejected">● Rejected</span>
+                        {% endif %}
+                    {% endwith %}
+                </td>
+                <td>
+                    {% if creator.content_creator_profile.resume %}
+                        <a href="{{ creator.content_creator_profile.resume.url }}" target="_blank" class="resume-link">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                            View Resume
+                        </a>
+                    {% else %}
+                        <span style="font-size: 0.82rem; color: var(--color-text-muted);">No resume</span>
+                    {% endif %}
+                </td>
+                <td style="font-size: 0.82rem; color: var(--color-text-muted);">{{ creator.created_at|date:"M j, Y" }}</td>
+                <td>
+                    <a href="{% url 'content_creator_detail' creator.pk %}" class="btn-view">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        View Details
+                    </a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="6">
+                    <div class="empty-state">
+                        <p style="font-weight: 600; color: var(--color-text); margin-bottom: 4px;">No content creators found</p>
+                        <p>{% if search %}No matches for "{{ search }}"{% else %}No content creators have registered yet{% endif %}</p>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

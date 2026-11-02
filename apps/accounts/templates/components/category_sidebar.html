@@ -1,0 +1,9 @@
+<aside class="category-sidebar" aria-label="Subcategories">
+  <h2 class="h5 mb-3">{{ category.name }}</h2>
+  <ul class="list-unstyled">
+    <li><a href="{% url 'categories:category_page' slug=category.slug %}" class="{% if not active_slug %}fw-bold{% endif %}">All {{ category.name }}</a></li>
+    {% for sub in category.active_children %}
+      <li><a href="{% url 'categories:subcategory_page' slug=category.slug sub_slug=sub.slug %}" class="{% if active_slug == sub.slug %}fw-bold{% endif %}">{{ sub.name }}</a></li>
+    {% endfor %}
+  </ul>
+</aside>

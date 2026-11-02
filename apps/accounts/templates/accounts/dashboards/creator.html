@@ -1,0 +1,134 @@
+{% extends 'accounts/dashboards/dashboard_base.html' %}
+
+{% block dashboard_content %}
+<style>
+    .welcome-banner {
+        background: linear-gradient(135deg, var(--accent-tint), #f5d5b5);
+        border-radius: 16px; padding: 28px 32px; margin-bottom: 28px;
+        display: flex; align-items: center; gap: 20px;
+    }
+    .welcome-icon {
+        width: 64px; height: 64px; border-radius: 50%;
+        background: var(--color-primary); color: white;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+    .welcome-text h2 { font-family: 'Playfair Display', serif; font-weight: 600; color: var(--color-text); margin: 0 0 4px 0; font-size: 1.5rem; }
+    .welcome-text p { color: var(--color-text); margin: 0; font-size: 0.92rem; }
+    
+       .status-card {
+        background: transparent; border: none; padding: 0; margin-bottom: 16px;
+    }
+    .status-pending, .status-approved, .status-rejected {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 6px 12px; border-radius: 999px;
+        font-size: 0.78rem; font-weight: 700;
+        margin-bottom: 16px;
+    }
+    .status-approved {
+        background: #ECFDF5; border: 1px solid #6EE7B7; color: #047857;
+    }
+    .status-pending {
+        background: #FEF3C7; border: 1px solid #FCD34D; color: #92400E;
+    }
+    .status-rejected {
+        background: #FEF2F2; border: 1px solid #FCA5A5; color: #991B1B;
+    }
+    .status-approved-icon, .status-pending-icon, .status-rejected-icon {
+        width: 18px; height: 18px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+    .status-approved-icon { background: #6EE7B7; color: #047857; }
+    .status-pending-icon { background: #FCD34D; color: #92400E; }
+    .status-rejected-icon { background: #FCA5A5; color: #991B1B; }
+    .status-approved-icon svg, .status-pending-icon svg, .status-rejected-icon svg {
+        width: 12px; height: 12px;
+    }
+    .status-text { font-size: 0.78rem; }
+    .status-subtext { display: none; }
+    
+    .section-title { font-family: 'Playfair Display', serif; font-weight: 600; color: var(--color-text); margin-bottom: 16px; font-size: 1.3rem; }
+    
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .feature-card {
+        background: var(--color-surface); border: 1px solid var(--color-border);
+        border-radius: 12px; padding: 20px; transition: all 0.2s;
+    }
+    .feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+    .feature-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--accent-tint); color: var(--color-primary); display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+    .feature-card h4 { font-size: 0.95rem; font-weight: 700; color: var(--color-text); margin: 0 0 6px 0; }
+    .feature-card p { font-size: 0.82rem; color: var(--color-text-muted); margin: 0; }
+    
+    .empty-state-card {
+        background: var(--color-surface); border: 2px dashed var(--color-border);
+        border-radius: 14px; padding: 48px 32px; text-align: center;
+    }
+    .empty-state-card svg { color: var(--color-text-muted); margin-bottom: 12px; }
+    .empty-state-card h3 { font-family: 'Playfair Display', serif; color: var(--color-text); margin-bottom: 8px; }
+    .empty-state-card p { color: var(--color-text-muted); margin-bottom: 20px; }
+</style>
+
+<!-- Welcome Banner -->
+<div class="welcome-banner">
+ 
+    
+</div>
+
+<!-- Approval Status -->
+<div class="status-card">
+   <!-- Approval Status Badge (compact, top) -->
+{% with profile=user.content_creator_profile %}
+    {% if profile.approval_status == 'PENDING' %}
+    <div class="status-pending">
+        <div class="status-pending-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <span class="status-text">Pending Approval</span>
+    </div>
+    {% elif profile.approval_status == 'APPROVED' %}
+    <div class="status-approved">
+        <div class="status-approved-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <span class="status-text">Account Approved</span>
+    </div>
+    {% elif profile.approval_status == 'REJECTED' %}
+    <div class="status-rejected">
+        <div class="status-rejected-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </div>
+        <span class="status-text">Account Rejected{% if profile.rejection_reason %} — {{ profile.rejection_reason }}{% endif %}</span>
+    </div>
+    {% endif %}
+{% endwith %}
+</div>
+
+
+
+{% endblock %}
+
+<!-- Assigned Subcategories -->
+<h3 class="section-title">Your Assigned Subcategories</h3>
+<div class="assignment-card" style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 14px; padding: 24px; margin-bottom: 32px;">
+    {% with profile=user.content_creator_profile %}
+        {% with assignments=profile.category_assignments.all %}
+            {% if assignments %}
+                {% for assignment in assignments %}
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--color-border);">
+                    <div>
+                        <div style="font-size: 0.78rem; color: var(--color-text-muted);">{{ assignment.category.parent.name }}</div>
+                        <div style="font-weight: 600; color: var(--color-text);">{{ assignment.category.name }}</div>
+                    </div>
+                    <span style="font-size: 0.78rem; color: var(--color-text-muted);">Assigned {{ assignment.assigned_at|date:"M j, Y" }}</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center; padding: 24px; color: var(--color-text-muted);">
+                    <p style="font-weight: 600; color: var(--color-text); margin-bottom: 4px;">No subcategories assigned yet</p>
+                    <p>An admin or content manager will assign subcategories to you after reviewing your resume.</p>
+                </div>
+            {% endif %}
+        {% endwith %}
+    {% endwith %}
+</div>

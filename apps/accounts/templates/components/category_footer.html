@@ -1,0 +1,5 @@
+<ul class="list-unstyled footer-cats">
+  {% for cat in menu_tree %}
+    <li><a href="{% url 'categories:category_page' slug=cat.slug %}" class="text-decoration-none">{{ cat.name }}</a></li>
+  {% endfor %}
+</ul>

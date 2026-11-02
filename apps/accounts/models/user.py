@@ -9,6 +9,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Roles(models.TextChoices):
         ADMIN = 'ADMIN', 'Admin'
         CONTENT_MANAGER = 'CONTENT_MANAGER', 'Content Manager'
+        CONTENT_CREATOR = 'CONTENT_CREATOR', 'Content Creator'
         SUPPORT = 'SUPPORT', 'Support Team'
         STUDENT = 'STUDENT', 'Student'
 

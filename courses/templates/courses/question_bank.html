@@ -1,0 +1,106 @@
+{% extends 'accounts/dashboards/dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_content %}
+<style>
+    .qb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .qb-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+    .qb-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--color-text); margin: 0; }
+    .q-item { border: 1px solid var(--color-border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+    .q-text { font-weight: 600; color: var(--color-text); margin-bottom: 8px; }
+    .q-opt { font-size: 0.85rem; color: var(--color-text-muted); margin-left: 16px; }
+    .q-correct { color: #059669; font-weight: 600; }
+    .badge-diff { font-size: 0.7rem; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+    .diff-easy { background: #D1FAE5; color: #059669; }
+    .diff-medium { background: #FEF3C7; color: #D97706; }
+    .diff-hard { background: #FEE2E2; color: #DC2626; }
+</style>
+
+<div class="qb-header">
+    <div>
+        <h1 class="qb-title">Question Bank: {{ course.title }}</h1>
+        <a href="{% url 'courses:course_builder' course.id %}" style="color: var(--color-text-muted); text-decoration: none; font-size: 0.85rem;">← Back to Course Builder</a>
+    </div>
+</div>
+
+<div class="qb-card">
+    <h3 style="font-family: 'Playfair Display', serif; margin-bottom: 16px;">Add New Question</h3>
+    <form method="post" action="{% url 'courses:add_question' course.id %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label class="form-label">Topic</label>
+            <select name="topic" class="form-input" required>
+                <option value="">— Select Topic —</option>
+                {% for topic in topics %}
+                <option value="{{ topic.id }}">{{ topic.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Question Text</label>
+            <textarea name="text" class="form-input" required placeholder="Enter the question"></textarea>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+                <label class="form-label">Option A</label>
+                <input type="text" name="option_a" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Option B</label>
+                <input type="text" name="option_b" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Option C</label>
+                <input type="text" name="option_c" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Option D</label>
+                <input type="text" name="option_d" class="form-input" required>
+            </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+                <label class="form-label">Correct Option</label>
+                <select name="correct_option" class="form-input" required>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Difficulty</label>
+                <select name="difficulty" class="form-input">
+                    <option value="EASY">Easy</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HARD">Hard</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Explanation (Optional)</label>
+            <input type="text" name="explanation" class="form-input" placeholder="Why is this the correct answer?">
+        </div>
+        <button type="submit" class="btn btn-primary">Add to Bank</button>
+    </form>
+</div>
+
+<div class="qb-card">
+    <h3 style="font-family: 'Playfair Display', serif; margin-bottom: 16px;">Existing Questions ({{ questions.count }})</h3>
+    {% for q in questions %}
+    <div class="q-item">
+        <div class="q-text">{{ q.text }}</div>
+        <div class="q-opt">A. {{ q.option_a }} {% if q.correct_option == 'A' %}<span class="q-correct">✓</span>{% endif %}</div>
+        <div class="q-opt">B. {{ q.option_b }} {% if q.correct_option == 'B' %}<span class="q-correct">✓</span>{% endif %}</div>
+        <div class="q-opt">C. {{ q.option_c }} {% if q.correct_option == 'C' %}<span class="q-correct">✓</span>{% endif %}</div>
+        <div class="q-opt">D. {{ q.option_d }} {% if q.correct_option == 'D' %}<span class="q-correct">✓</span>{% endif %}</div>
+        <div style="margin-top: 8px; display: flex; gap: 8px;">
+            <span class="badge-diff diff-{{ q.difficulty|lower }}">{{ q.difficulty }}</span>
+            <span style="font-size: 0.8rem; color: var(--color-text-muted);">Topic: {{ q.topic.name }}</span>
+        </div>
+    </div>
+    {% empty %}
+    <div style="text-align: center; padding: 20px; color: var(--color-text-muted);">No questions in the bank yet.</div>
+    {% endfor %}
+</div>
+{% endblock %}

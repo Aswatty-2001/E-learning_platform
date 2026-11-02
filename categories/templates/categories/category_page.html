@@ -1,0 +1,41 @@
+{% extends 'accounts/base.html' %}
+{% load menu_tags %}
+
+{% block title %}{{ main.name }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3" style="--bs-breadcrumb-divider: '›';">
+    <ol class="breadcrumb" style="font-size: 0.85rem; margin: 0; padding: 8px 0;">
+        <li class="breadcrumb-item">
+            <a href="/" style="color: var(--color-text-muted); text-decoration: none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                Home
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="{% url 'categories:category_page' slug=main.slug %}" style="color: var(--color-text-muted); text-decoration: none;">{{ main.name }}</a>
+        </li>
+        {% if sub %}
+        <li class="breadcrumb-item active" aria-current="page" style="color: var(--color-text);">{{ sub.name }}</li>
+        {% else %}
+        <li class="breadcrumb-item active" aria-current="page" style="color: var(--color-text);">All Courses</li>
+        {% endif %}
+    </ol>
+</nav>
+
+<h1>{% if sub %}{{ sub.name }}{% else %}{{ main.name }}{% endif %}</h1>
+<p class="text-muted mb-4">{% if sub %}{{ sub.description }}{% else %}{{ main.description }}{% endif %}</p>
+
+{% category_chips active_slug=main.slug %}
+
+<div class="row mt-4">
+  <div class="col-md-3 d-none d-md-block">
+    {% category_sidebar category=main active_slug=sub.slug %}
+  </div>
+  <div class="col-md-9">
+    <div class="text-center text-muted py-5">
+      <p>No courses here yet. Check back soon.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

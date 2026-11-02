@@ -1,0 +1,59 @@
+{% extends 'accounts/dashboards/dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_content %}
+<style>
+    .fmt-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+    .fmt-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--color-text); margin: 0 0 8px 0; }
+    .set-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 768px) { .set-grid { grid-template-columns: 1fr; } }
+    .set-card { border: 1px solid var(--color-border); border-radius: 12px; padding: 16px; }
+    .set-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--color-border); }
+    .set-title { font-weight: 700; color: var(--color-text); }
+    .set-count { font-size: 0.8rem; color: var(--color-text-muted); background: var(--color-bg); padding: 2px 8px; border-radius: 999px; }
+    .q-row { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; font-size: 0.85rem; }
+    .q-row input { margin-top: 3px; }
+</style>
+
+<div style="margin-bottom: 24px;">
+    <h1 class="fmt-title">Final Mock Test: 5 Sets</h1>
+    <a href="{% url 'courses:course_builder' course.id %}" style="color: var(--color-text-muted); text-decoration: none; font-size: 0.85rem;">← Back to Course Builder</a>
+</div>
+
+<div class="fmt-card">
+    <p style="color: var(--color-text-muted); margin-bottom: 16px;">
+        <strong>Passing Mark:</strong> {{ mock_test.passing_mark }}% | 
+        <strong>Time Limit:</strong> {{ mock_test.time_limit_minutes }} mins | 
+        <strong>Questions per attempt:</strong> {{ mock_test.questions_per_attempt }}
+    </p>
+
+    <div class="set-grid">
+        {% for set in sets %}
+        <div class="set-card">
+            <div class="set-header">
+                <span class="set-title">Set {{ set.set_number }}</span>
+                <span class="set-count">{{ set.questions.count }} questions</span>
+            </div>
+            
+            <form method="post" action="{% url 'courses:save_mock_set' course.id set.id %}">
+                {% csrf_token %}
+                <div style="max-height: 300px; overflow-y: auto; padding-right: 5px;">
+                    {% for q in bank_questions %}
+                    <div class="q-row">
+                        <input type="checkbox" name="questions" value="{{ q.id }}" id="set{{ set.set_number }}_q{{ q.id }}" 
+                        {% if q in set.questions.all %}checked{% endif %}>
+                        <label for="set{{ set.set_number }}_q{{ q.id }}" style="cursor: pointer;">
+                            {{ q.text }} <span style="color:var(--color-text-muted); font-size:0.8rem;">({{ q.topic.name }})</span>
+                        </label>
+                    </div>
+                    {% empty %}
+                    <p style="color: var(--color-text-muted); font-size: 0.85rem;">No questions in bank.</p>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top: 12px; width: 100%; padding: 8px; font-size: 0.85rem;">Save Set {{ set.set_number }}</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

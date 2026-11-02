@@ -1,0 +1,34 @@
+{% extends 'accounts/dashboards/dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_content %}
+<style>
+    .cs-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; padding: 32px; max-width: 800px; margin: 0 auto; }
+    .cs-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--color-text); margin: 0 0 8px 0; }
+    .upload-area { border: 2px dashed var(--color-border); border-radius: 16px; padding: 32px; text-align: center; background: var(--color-bg); cursor: pointer; transition: all 0.2s; }
+    .upload-area:hover { border-color: var(--accent); background: var(--accent-tint); }
+    .upload-area img { max-height: 200px; border-radius: 8px; margin-bottom: 16px; }
+</style>
+
+<div style="margin-bottom: 24px;">
+    <h1 class="cs-title">Course Settings</h1>
+    <a href="{% url 'courses:course_builder' course.id %}" style="color: var(--color-text-muted); text-decoration: none; font-size: 0.85rem;">← Back to Course Builder</a>
+</div>
+
+<div class="cs-card">
+    <h3 style="margin-bottom: 24px;">Course Thumbnail</h3>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label class="upload-area">
+            {% if course.thumbnail %}
+                <img src="{{ course.thumbnail.url }}" alt="Thumbnail">
+                <p>Click to change thumbnail</p>
+            {% else %}
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin-bottom: 12px; color: var(--color-text-muted);"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                <p style="color: var(--color-text-muted);">Click to upload a thumbnail (16:9 ratio recommended)</p>
+            {% endif %}
+            <input type="file" name="thumbnail" accept="image/*" style="display: none;" onchange="this.form.submit()">
+        </label>
+    </form>
+</div>
+{% endblock %}

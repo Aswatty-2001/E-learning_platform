@@ -1,0 +1,60 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} Courses{% endblock %}
+
+{% block content %}
+<style>
+  .cat-hero { background: var(--color-surface); border-bottom: 1px solid var(--color-border); padding: 40px 0; text-align: center; margin-bottom: 40px; }
+  .cat-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--color-text); margin: 0 0 8px 0; }
+  .cat-sub { color: var(--color-text-muted); font-size: 1.1rem; }
+  
+  .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; max-width: 1140px; margin: 0 auto; padding: 0 15px 60px 15px; }
+  .course-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; overflow: hidden; transition: all 0.3s; text-decoration: none; color: inherit; display: block; }
+  .course-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); border-color: var(--color-primary); }
+  .card-thumb { height: 180px; background: var(--color-bg); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .card-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .card-body { padding: 20px; }
+  .card-cat { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-primary); margin-bottom: 6px; }
+  .card-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 600; color: var(--color-text); margin-bottom: 8px; line-height: 1.3; }
+  .card-meta { font-size: 0.85rem; color: var(--color-text-muted); display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--color-border); }
+  
+  .empty-state { text-align: center; padding: 60px 20px; grid-column: 1 / -1; }
+</style>
+
+<div class="cat-hero">
+    <h1 class="cat-title">{{ category.name }}</h1>
+    <p class="cat-sub">Explore our {{ courses.count }} course{{ courses.count|pluralize }} in this category</p>
+</div>
+
+<div class="course-grid">
+    {% for course in courses %}
+    <a href="{% url 'courses:course_detail' course.id %}" class="course-card">
+        <div class="card-thumb">
+            {% if course.thumbnail %}
+                <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">
+            {% else %}
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="color: var(--color-text-muted);"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            <div class="card-cat">{{ course.main_category.name }}</div>
+            <div class="card-title">{{ course.title }}</div>
+            <div style="font-size: 0.9rem; color: var(--color-text-muted);">By {{ course.author.first_name }} {{ course.author.last_name }}</div>
+            <div class="card-meta">
+                <span>{{ course.get_level_display }}</span>
+                <span style="color: var(--color-primary); font-weight: 700;">
+                    {% if course.pricing == 0 %}Free{% else %}₹{{ course.pricing }}{% endif %}
+                </span>
+            </div>
+        </div>
+    </a>
+    {% empty %}
+    <div class="empty-state">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin-bottom: 16px; color: var(--color-text-muted);"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+        <h3 style="font-family: 'Playfair Display', serif; color: var(--color-text); margin-bottom: 8px;">No courses here yet</h3>
+        <p style="color: var(--color-text-muted);">Check back soon — our content managers are adding courses!</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

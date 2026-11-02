@@ -1,0 +1,108 @@
+{% extends 'accounts/dashboards/dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_content %}
+<style>
+    .pr-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; padding: 32px; max-width: 800px; margin: 0 auto; }
+    .pr-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--color-text); margin: 0 0 8px 0; }
+    .msg-item { background: var(--color-bg); padding: 12px 16px; border-radius: 12px; margin-bottom: 12px; border-left: 4px solid var(--color-primary); }
+    .msg-author { font-weight: 700; font-size: 0.85rem; }
+    .msg-date { font-size: 0.75rem; color: var(--color-text-muted); }
+    .status-badge { padding: 6px 16px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; background: var(--color-bg); border: 1px solid var(--color-border); display: inline-block; margin-bottom: 16px; }
+</style>
+
+<div style="margin-bottom: 24px;">
+    <h1 class="pr-title">Pricing & Publication</h1>
+    <a href="{% url 'courses:course_builder' course.id %}" style="color: var(--color-text-muted); text-decoration: none; font-size: 0.85rem;">← Back to Course Builder</a>
+</div>
+
+<div class="pr-card">
+    <div class="status-badge status-{{ course.status|lower }}">{{ course.get_status_display }}</div>
+
+    {% if course.status == 'APPROVED' and request.user == course.author %}
+    <h3>Propose a Price</h3>
+    <p style="color: var(--color-text-muted); margin-bottom: 16px;">Your content is approved! Propose a price for your course. Admin/CM will review and confirm it.</p>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="propose">
+        <div class="form-group">
+            <label class="form-label">Proposed Price (₹)</label>
+            <input type="number" name="price" class="form-input" step="0.01" min="0" required placeholder="e.g., 499.00">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Price Proposal</button>
+    </form>
+    
+    {% elif course.status == 'PRICE_PROPOSED' or course.status == 'PRICE_CONFIRMED' %}
+    <h3>Price Proposal</h3>
+    <div style="background: var(--color-bg); padding: 16px; border-radius: 12px; margin-bottom: 24px;">
+        <div style="font-size: 0.85rem; color: var(--color-text-muted);">Proposed Price:</div>
+        <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-text);">₹{{ proposal.proposed_price }}</div>
+        <div style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 4px;">
+            Proposed by {{ proposal.proposed_by.first_name }} on {{ proposal.created_at|date:"M j, Y" }}
+        </div>
+        
+        {% if proposal.is_confirmed %}
+        <div style="margin-top: 12px; color: #059669; font-weight: 600; font-size: 0.9rem;">
+            ✓ Confirmed by {{ proposal.confirmed_by.first_name }} on {{ proposal.confirmed_at|date:"M j, Y" }}
+        </div>
+        {% elif course.status == 'PRICE_PROPOSED' and request.user.role == 'ADMIN' or course.status == 'PRICE_PROPOSED' and request.user.role == 'CONTENT_MANAGER' %}
+        
+        <!-- Admin/CM View: Edit and Confirm -->
+        <details style="margin-top: 16px; margin-bottom: 16px;">
+            <summary style="cursor: pointer; color: var(--color-primary); font-weight: 600; font-size: 0.9rem;">Edit Proposed Price</summary>
+            <form method="post" style="margin-top: 12px; display: flex; gap: 8px;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="edit_price">
+                <input type="number" name="price" class="form-input" step="0.01" min="0" value="{{ proposal.proposed_price }}" required style="flex: 1;">
+                <button type="submit" class="btn btn-outline">Update Price</button>
+            </form>
+        </details>
+        
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="confirm">
+            <button type="submit" class="btn btn-primary" style="background: #059669; border-color: #059669; width: 100%;">Confirm Price</button>
+        </form>
+        
+        {% elif course.status == 'PRICE_PROPOSED' and request.user == course.author %}
+        
+        <!-- Creator View: Edit Only -->
+        <details style="margin-top: 16px;">
+            <summary style="cursor: pointer; color: var(--color-primary); font-weight: 600; font-size: 0.9rem;">Edit Proposed Price</summary>
+            <form method="post" style="margin-top: 12px; display: flex; gap: 8px;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="edit_price">
+                <input type="number" name="price" class="form-input" step="0.01" min="0" value="{{ proposal.proposed_price }}" required style="flex: 1;">
+                <button type="submit" class="btn btn-outline">Update Price</button>
+            </form>
+        </details>
+        {% endif %}
+    </div>
+
+    <h3>Discussion</h3>
+    <div style="margin-bottom: 24px;">
+        {% for msg in messages_list %}
+        <div class="msg-item">
+            <div style="display: flex; justify-content: space-between;">
+                <span class="msg-author">{{ msg.author.first_name }} ({{ msg.author.role|title }})</span>
+                <span class="msg-date">{{ msg.created_at|date:"M j, Y g:i A" }}</span>
+            </div>
+            <div style="margin-top: 6px;">{{ msg.text }}</div>
+        </div>
+        {% empty %}
+        <p style="color: var(--color-text-muted); text-align: center; padding: 16px;">No messages yet.</p>
+        {% endfor %}
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="discuss">
+        <textarea name="message_text" class="form-input" style="min-height: 80px; margin-bottom: 12px;" placeholder="Write a message..."></textarea>
+        <button type="submit" class="btn btn-outline">Send Message</button>
+    </form>
+    
+    {% else %}
+    <p>This course is not in the pricing phase.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,157 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+
+{% block title %}{{ course.title }} - Eduvia{% endblock %}
+
+{% block content_wrapper %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,600;1,500;1,600&display=swap');
+
+  :root {
+    --bg: #FDFCF5;
+    --text: #1C1411;
+    --muted: #5E534C;
+    --accent: #CC5500;
+    --accent-tint: #FBE9DC;
+    --border: #E6DFD2;
+    --surface: #FFFFFF;
+  }
+
+  .detail-hero { background: var(--surface); border-bottom: 1px solid var(--border); padding: 40px 0; }
+  .detail-container { max-width: 1140px; margin: 0 auto; padding: 0 15px; display: grid; grid-template-columns: 1fr 360px; gap: 40px; }
+  @media (max-width: 992px) { .detail-container { grid-template-columns: 1fr; } }
+
+  .detail-breadcrumb { display: flex; gap: 6px; align-items: center; font-size: 0.85rem; color: var(--muted); margin-bottom: 20px; }
+  .detail-breadcrumb a { color: var(--accent); text-decoration: none; }
+
+  .detail-title { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 600; color: var(--text); margin: 0 0 8px 0; line-height: 1.2; }
+  .detail-subtitle { font-size: 1.1rem; color: var(--muted); margin-bottom: 16px; }
+  .detail-meta { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+  .meta-item { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; color: var(--muted); }
+  .meta-item svg { width: 16px; height: 16px; color: var(--accent); }
+
+  .detail-desc { font-size: 1rem; color: var(--text); line-height: 1.7; margin-bottom: 32px; }
+
+  .instructor-card { display: flex; align-items: center; gap: 16px; padding: 20px; background: var(--bg); border-radius: 12px; margin-bottom: 32px; }
+  .instructor-avatar { width: 56px; height: 56px; border-radius: 50%; background: var(--accent-tint); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; flex-shrink: 0; }
+  .instructor-name { font-weight: 700; color: var(--text); }
+  .instructor-role { font-size: 0.85rem; color: var(--muted); }
+
+  .curriculum-section { margin-bottom: 32px; }
+  .curriculum-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--text); margin-bottom: 20px; }
+  .module-box { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+  .module-head { background: var(--bg); padding: 14px 20px; font-weight: 700; color: var(--text); display: flex; justify-content: space-between; cursor: pointer; }
+  .module-head:hover { background: var(--accent-tint); }
+  .chapter-row { padding: 10px 20px; border-top: 1px solid var(--border); font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
+  .chapter-row svg { width: 16px; height: 16px; color: var(--muted); flex-shrink: 0; }
+  .free-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 999px; background: #DBEAFE; color: #1D4ED8; font-weight: 600; margin-left: auto; }
+
+  /* Sidebar Card */
+  .sidebar-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; position: sticky; top: 80px; }
+  .sidebar-thumb { width: 100%; height: 200px; background: var(--bg); display: flex; align-items: center; justify-content: center; }
+  .sidebar-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .sidebar-body { padding: 24px; }
+  .price-tag { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .price-free { color: #059669; }
+  .enroll-btn { display: block; text-align: center; padding: 14px; background: var(--accent); color: white; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 1rem; margin-bottom: 16px; transition: all 0.2s; }
+  .enroll-btn:hover { background: #B54C00; color: white; }
+  .sidebar-info { list-style: none; padding: 0; margin: 16px 0 0 0; }
+  .sidebar-info li { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 0.88rem; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .sidebar-info li svg { width: 18px; height: 18px; color: var(--accent); }
+</style>
+
+<div class="detail-hero">
+  <div class="detail-container">
+    <!-- LEFT: Course Content -->
+    <div>
+      <nav class="detail-breadcrumb">
+        <a href="/">Home</a><span>›</span>
+        <a href="{% url 'courses:course_catalogue' course.subcategory.slug %}">{{ course.subcategory.name }}</a><span>›</span>
+        <span>{{ course.title }}</span>
+      </nav>
+
+      <h1 class="detail-title">{{ course.title }}</h1>
+      <p class="detail-subtitle">{{ course.subtitle }}</p>
+
+      <div class="detail-meta">
+        <div class="meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+          {{ course.get_level_display }}
+        </div>
+        <div class="meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          {{ total_chapters }} Chapters
+        </div>
+        <div class="meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          {{ course.language|upper }}
+        </div>
+      </div>
+
+      <div class="instructor-card">
+        <div class="instructor-avatar">{{ course.author.first_name|first|upper }}</div>
+        <div>
+          <div class="instructor-name">{{ course.author.first_name }} {{ course.author.last_name }}</div>
+          <div class="instructor-role">Content Creator</div>
+        </div>
+      </div>
+
+      <div class="detail-desc">{{ course.description }}</div>
+
+      <!-- Curriculum -->
+      <div class="curriculum-section">
+        <h2 class="curriculum-title">Course Curriculum</h2>
+        {% for module in modules %}
+        <div class="module-box">
+          <div class="module-head">
+            <span>Module {{ forloop.counter }}: {{ module.title }}</span>
+            <span style="font-size: 0.8rem; color: var(--muted); font-weight: 500;">{{ module.chapters.count }} chapters</span>
+          </div>
+          {% for chapter in module.chapters.all %}
+          <div class="chapter-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <span>{{ chapter.title }}</span>
+            {% if chapter.is_free_preview %}
+            <span class="free-badge">Free Preview</span>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- RIGHT: Sidebar -->
+    <div>
+      <div class="sidebar-card">
+        <div class="sidebar-thumb">
+          {% if course.thumbnail %}
+          <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">
+          {% else %}
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="color: var(--muted);"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+          {% endif %}
+        </div>
+        <div class="sidebar-body">
+          <div class="price-tag {% if course.pricing == 0 %}price-free{% endif %}">
+            {% if course.pricing == 0 %}Free{% else %}₹{{ course.pricing }}{% endif %}
+          </div>
+
+          {% if is_enrolled %}
+            <a href="{% url 'courses:course_learn' course.id %}" class="enroll-btn" style="background: #059669;">Go to Course</a>
+          {% else %}
+            <a href="{% url 'courses:course_learn' course.id %}" class="enroll-btn">Preview Course</a>
+          {% endif %}
+
+          <ul class="sidebar-info">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path></svg> {{ course.get_level_display }} Level</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> {{ total_chapters }} Chapters</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg> {{ course.language|upper }}</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Certificate Available</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Lifetime Access</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

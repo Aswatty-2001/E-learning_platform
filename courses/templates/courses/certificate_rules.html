@@ -1,0 +1,61 @@
+{% extends 'accounts/dashboards/dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_content %}
+<style>
+    .cr-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; padding: 32px; max-width: 800px; margin: 0 auto; }
+    .cr-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--color-text); margin: 0 0 8px 0; }
+    .cr-group { margin-bottom: 20px; }
+    .cr-switch { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--color-bg); border-radius: 8px; }
+    .cr-switch input { width: 18px; height: 18px; accent-color: var(--accent); }
+</style>
+
+<div style="margin-bottom: 24px;">
+    <h1 class="cr-title">Completion & Certificate Rules</h1>
+    <a href="{% url 'courses:course_builder' course.id %}" style="color: var(--color-text-muted); text-decoration: none; font-size: 0.85rem;">← Back to Course Builder</a>
+</div>
+
+<div class="cr-card">
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="cr-group cr-switch">
+            <input type="checkbox" name="certificate_enabled" id="cert_en" {% if rule.certificate_enabled %}checked{% endif %}>
+            <label for="cert_en" style="font-weight: 600;">Enable Certificate for this course</label>
+        </div>
+
+        <div class="cr-group cr-switch">
+            <input type="checkbox" name="require_all_chapters_complete" id="req_chap" {% if rule.require_all_chapters_complete %}checked{% endif %}>
+            <label for="req_chap" style="font-weight: 600;">Require all chapters complete (Video 90% + Quiz)</label>
+        </div>
+
+        <div class="cr-group cr-switch">
+            <input type="checkbox" name="chapter_quiz_required" id="req_quiz" {% if rule.chapter_quiz_required %}checked{% endif %}>
+            <label for="req_quiz" style="font-weight: 600;">Require Chapter Quizzes to be passed</label>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="cr-group">
+                <label class="form-label">Chapter Quiz Passing Mark (%)</label>
+                <input type="number" name="chapter_quiz_passing_mark" class="form-input" value="{{ rule.chapter_quiz_passing_mark }}" min="1" max="100">
+            </div>
+            <div class="cr-group">
+                <label class="form-label">Final Mock Passing Mark (%)</label>
+                <input type="number" name="final_mock_passing_mark" class="form-input" value="{{ rule.final_mock_passing_mark }}" min="1" max="100">
+            </div>
+        </div>
+
+        <div class="cr-group">
+            <label class="form-label">Max Final Attempts (blank = unlimited)</label>
+            <input type="number" name="max_final_attempts" class="form-input" value="{{ rule.max_final_attempts|default:'' }}" min="1">
+        </div>
+
+        <div class="cr-group">
+            <label class="form-label">Certificate Title Text</label>
+            <input type="text" name="certificate_title_text" class="form-input" value="{{ rule.certificate_title_text }}">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Rules</button>
+    </form>
+</div>
+{% endblock %}

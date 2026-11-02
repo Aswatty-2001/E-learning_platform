@@ -137,3 +137,109 @@ class AdminProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.first_name} - Admin Profile"
+
+class ContentCreatorProfile(models.Model):
+    class ApprovalStatus(models.TextChoices):
+        PENDING = 'PENDING', 'Pending'
+        APPROVED = 'APPROVED', 'Approved'
+        REJECTED = 'REJECTED', 'Rejected'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        related_name='content_creator_profile'
+    )
+    
+    profile_photo = models.ImageField(
+        upload_to='creator_photos/', null=True, blank=True,
+        help_text="Optional profile photo of the content creator"
+    )
+    bio = models.TextField(blank=True, help_text="Short biography shown on course pages")
+    areas_of_expertise = models.JSONField(default=list, blank=True)
+    
+    # Approval workflow (same as Content Manager)
+    approval_status = models.CharField(
+        max_length=20, choices=ApprovalStatus.choices,
+        default=ApprovalStatus.PENDING
+    )
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True,
+        on_delete=models.SET_NULL, related_name='approved_creators'
+    )
+    approved_at = models.DateTimeField(null=True, blank=True)
+    rejection_reason = models.TextField(blank=True)
+    
+    # Whether they can publish directly (default False — needs CM/Admin approval)
+    can_publish_directly = models.BooleanField(default=False)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.first_name} - Content Creator Profile"
+
+class ContentCreatorProfile(models.Model):
+    class ApprovalStatus(models.TextChoices):
+        PENDING = 'PENDING', 'Pending'
+        APPROVED = 'APPROVED', 'Approved'
+        REJECTED = 'REJECTED', 'Rejected'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        related_name='content_creator_profile'
+    )
+    
+    profile_photo = models.ImageField(
+        upload_to='creator_photos/', null=True, blank=True,
+        help_text="Optional profile photo of the content creator"
+    )
+    resume = models.FileField(
+        upload_to='creator_resumes/', null=True, blank=True,
+        help_text="Resume/CV file (PDF, DOC, DOCX up to 5MB)"
+    )  # NEW
+    bio = models.TextField(blank=True, help_text="Short biography shown on course pages")
+    areas_of_expertise = models.JSONField(default=list, blank=True)
+    
+    approval_status = models.CharField(
+        max_length=20, choices=ApprovalStatus.choices,
+        default=ApprovalStatus.PENDING
+    )
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True,
+        on_delete=models.SET_NULL, related_name='approved_creators'
+    )
+    approved_at = models.DateTimeField(null=True, blank=True)
+    rejection_reason = models.TextField(blank=True)
+    
+    can_publish_directly = models.BooleanField(default=False)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.first_name} - Content Creator Profile"
+
+class CreatorCategoryAssignment(models.Model):
+    """Links a content creator to subcategories they can create content for."""
+    creator_profile = models.ForeignKey(
+        ContentCreatorProfile, on_delete=models.CASCADE,
+        related_name='category_assignments'
+    )
+    category = models.ForeignKey(
+        'categories.Category', on_delete=models.CASCADE,
+        related_name='creator_assignments',
+        limit_choices_to={'parent__isnull': False}  # Only subcategories
+    )
+    assigned_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL,
+        related_name='category_assignments_made'
+    )
+    assigned_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('creator_profile', 'category')
+        ordering = ['-assigned_at']
+
+    def __str__(self):
+        return f"{self.creator_profile.user.first_name} → {self.category.name}"

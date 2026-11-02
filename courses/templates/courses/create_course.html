@@ -1,0 +1,102 @@
+{% extends 'accounts/dashboards/dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_content %}
+<style>
+    .form-wrap { max-width: 800px; margin: 0 auto; }
+    .form-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; padding: 40px; }
+    .form-header { margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--color-border); }
+    .form-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 1.85rem; color: var(--color-text); margin: 0 0 6px 0; }
+    .form-subtitle { color: var(--color-text-muted); font-size: 0.92rem; margin: 0; }
+    .form-group { margin-bottom: 22px; }
+    .form-label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--color-text); margin-bottom: 8px; }
+    .form-label .req { color: var(--accent); }
+    .form-help { font-size: 0.78rem; color: var(--color-text-muted); margin-top: 6px; }
+    .form-input { width: 100%; height: 44px; padding: 0 14px; border: 1.5px solid var(--color-border); border-radius: 10px; background: var(--color-bg); color: var(--color-text); font-size: 14px; }
+    .form-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-tint); background: var(--color-surface); }
+    textarea.form-input { height: auto; padding: 12px 14px; min-height: 120px; }
+    .form-actions { display: flex; gap: 12px; margin-top: 32px; }
+    .info-banner { background: var(--accent-tint); border: 1px solid var(--accent); border-radius: 10px; padding: 14px 18px; margin-bottom: 28px; font-size: 0.85rem; color: #92400E; display: flex; align-items: flex-start; gap: 10px; }
+</style>
+
+<div class="form-wrap">
+    <div class="form-card">
+        <div class="form-header">
+            <h1 class="form-title">Create a New Course</h1>
+            <p class="form-subtitle">Start by entering the basic details and selecting the category assigned to you.</p>
+        </div>
+
+        <div class="info-banner">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>
+            <div><strong>Note:</strong> You can only select subcategories that have been assigned to you by an Admin or Content Manager.</div>
+        </div>
+
+        {% if messages %}
+            {% for m in messages %}
+                <div class="alert alert-{{ m.tags|default:'danger' }}" style="border-radius: 10px; margin-bottom: 20px;">{{ m }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label class="form-label">Course Title <span class="req">*</span></label>
+                <input type="text" name="title" class="form-input" value="{{ form_data.title|default:'' }}" required placeholder="e.g., Complete Python Programming Bootcamp">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Subtitle</label>
+                <input type="text" name="subtitle" class="form-input" value="{{ form_data.subtitle|default:'' }}" placeholder="A short, catchy description">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Description <span class="req">*</span></label>
+                <textarea name="description" class="form-input" required placeholder="Min 50 characters. Describe what the course is about.">{{ form_data.description|default:'' }}</textarea>
+                <div class="form-help">Minimum 50 characters required.</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Assigned Subcategory <span class="req">*</span></label>
+                <select name="subcategory" class="form-input" required>
+                    <option value="">— Select a subcategory —</option>
+                    {% for parent_name, subs in cat_groups.items %}
+                    <optgroup label="{{ parent_name }}">
+                        {% for sub in subs %}
+                        <option value="{{ sub.id }}" {% if form_data.subcategory == sub.id|stringformat:"s" %}selected{% endif %}>{{ sub.name }}</option>
+                        {% endfor %}
+                    </optgroup>
+                    {% endfor %}
+                    {% if not cat_groups %}
+                        <option disabled>No categories assigned to you yet.</option>
+                    {% endif %}
+                </select>
+                <div class="form-help">You can only select categories assigned to you. If empty, please contact your manager.</div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label class="form-label">Level</label>
+                    <select name="level" class="form-input">
+                        <option value="BEGINNER" {% if form_data.level == 'BEGINNER' %}selected{% endif %}>Beginner</option>
+                        <option value="INTERMEDIATE" {% if form_data.level == 'INTERMEDIATE' %}selected{% endif %}>Intermediate</option>
+                        <option value="ADVANCED" {% if form_data.level == 'ADVANCED' %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Language</label>
+                    <input type="text" name="language" class="form-input" value="{{ form_data.language|default:'en' }}" placeholder="e.g., en">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    Create Course
+                </button>
+                <a href="{% url 'courses:creator_courses' %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
