@@ -2,119 +2,196 @@
 {% load static %}
 
 {% block breadcrumb_extra %}
-<li class="breadcrumb-item active" aria-current="page" style="color: var(--color-text);">My Courses</li>
+<li class="breadcrumb-item active" aria-current="page" style="color: var(--color-text);">
+    {% if is_admin_or_cm %}All Courses{% else %}My Courses{% endif %}
+</li>
 {% endblock %}
 
 {% block dashboard_content %}
 <style>
-    .course-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .course-header h1 { font-family: 'Playfair Display', serif; font-weight: 600; color: var(--color-text); margin: 0; }
-    .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
-    .course-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; overflow: hidden; transition: all 0.3s; }
-    .course-card:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.08); transform: translateY(-4px); }
-    .course-thumb { height: 160px; background: var(--accent-tint); display: flex; align-items: center; justify-content: center; }
-    .course-thumb svg { color: var(--accent); width: 48px; height: 48px; }
-    .course-body { padding: 20px; }
-    .course-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 600; color: var(--color-text); margin-bottom: 8px; }
-    .course-meta { font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 16px; }
-    .status-badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
-    .status-draft { background: #F3F4F6; color: #4B5563; }
-    .status-in_review { background: #FEF3C7; color: #92400E; }
-    .status-changes_requested { background: #FEF2F2; color: #991B1B; }
-    .status-approved { background: #ECFDF5; color: #047857; }
-    .status-published { background: #ECFDF5; color: #047857; }
-    .btn-edit { display: block; text-align: center; padding: 10px; background: var(--color-primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem; margin-top: 16px; }
-    .btn-edit:hover { background: var(--color-primary-hover); color: white; }
+    .cc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .cc-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--color-text); margin: 0; }
+    .cc-subtitle { color: var(--color-text-muted); font-size: 0.88rem; margin-top: 4px; }
+
+    .cc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+    @media (max-width: 576px) { .cc-grid { grid-template-columns: 1fr; } }
+
+    .course-card {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 14px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .course-card:hover { border-color: var(--accent); box-shadow: 0 4px 14px rgba(0,0,0,0.05); }
+
+    .course-thumb {
+        width: 100%; height: 140px;
+        background: var(--color-bg);
+        background-size: cover; background-position: center;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .course-thumb svg { color: #c5b8a0; }
+
+    .course-body { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .course-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--color-text); margin: 0; line-height: 1.3; }
+    .course-cat { font-size: 0.78rem; color: var(--color-text-muted); }
+    .course-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: var(--color-text-muted); padding-top: 6px; border-top: 1px solid var(--color-border); }
+
+    .status-badge { padding: 4px 10px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; background: var(--color-bg); border: 1px solid var(--color-border); white-space: nowrap; }
+    .st-draft { color: #4B5563; }
+    .st-in_review, .st-price_proposed { background: #FEF3C7; color: #92400E; border-color: #FCD34D; }
+    .st-approved, .st-price_confirmed { background: #ECFDF5; color: #047857; border-color: #6EE7B7; }
+    .st-published { background: #D1FAE5; color: #059669; border-color: #A7F3D0; }
+    .st-changes_requested { background: #FEF2F2; color: #991B1B; border-color: #FCA5A5; }
+
+    .course-actions { display: flex; gap: 6px; padding: 0 16px 16px; }
+    .course-actions a {
+        flex: 1; text-align: center;
+        padding: 7px 10px;
+        border-radius: 6px;
+        font-size: 0.78rem; font-weight: 600;
+        text-decoration: none;
+        border: 1px solid var(--color-border);
+        color: var(--color-text);
+        transition: all 0.15s;
+    }
+    .course-actions a:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-tint); }
+    .course-actions a.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    .course-actions a.primary:hover { background: #B54C00; color: white; }
+
+    /* Admin / CM: price proposal section */
+    .price-box {
+        margin: 0 16px 14px;
+        padding: 10px 12px;
+        background: var(--color-bg);
+        border: 1px dashed var(--color-border);
+        border-radius: 8px;
+        font-size: 0.78rem;
+    }
+    .price-row { display: flex; justify-content: space-between; align-items: center; }
+    .price-row + .price-row { margin-top: 6px; }
+    .price-label { color: var(--color-text-muted); font-weight: 600; }
+    .price-value { color: var(--color-text); font-weight: 700; }
+    .price-actions { margin-top: 8px; display: flex; gap: 6px; }
+    .price-actions a {
+        flex: 1; text-align: center;
+        padding: 5px 8px;
+        border-radius: 5px;
+        font-size: 0.72rem; font-weight: 600;
+        text-decoration: none;
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text);
+    }
+    .price-actions a.confirm { background: #047857; color: white; border-color: #047857; }
+    .price-actions a.discuss { background: var(--accent); color: white; border-color: var(--accent); }
+
     .empty-state { text-align: center; padding: 60px 20px; color: var(--color-text-muted); }
-    
-    /* Compact Approval Badge (50% smaller) */
-    .approval-badge { 
-        display: inline-flex; align-items: center; gap: 6px; 
-        padding: 4px 10px; border-radius: 999px; 
-        font-size: 0.72rem; font-weight: 600; 
-        margin-bottom: 16px;
-    }
-    .badge-pending { background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
-    .badge-rejected { background: #FEF2F2; color: #991B1B; border: 1px solid #FCA5A5; }
-    .badge-icon { width: 14px; height: 14px; flex-shrink: 0; }
-    
-    .btn-disabled { 
-        background: var(--color-border); color: var(--color-text-muted); 
-        cursor: not-allowed; opacity: 0.6; padding: 8px 16px; 
-        border-radius: 8px; font-weight: 600; font-size: 0.85rem; 
-        display: inline-flex; align-items: center; gap: 6px; 
-        text-decoration: none; pointer-events: none; 
-    }
+    .empty-state svg { color: #d9cebf; margin-bottom: 8px; }
 </style>
 
-<div class="course-header">
+<div class="cc-header">
     <div>
-       
-        
+        <h1 class="cc-title">
+            {% if is_admin_or_cm %}All Courses
+            {% else %}My Courses{% endif %}
+        </h1>
+        <p class="cc-subtitle">
+            {% if is_admin_or_cm %}
+                Every course on the platform — review, approve pricing, and publish.
+            {% else %}
+                Courses you've authored. Build, submit for review, and publish.
+            {% endif %}
+        </p>
     </div>
-    
-    <!-- Only show Create button if approved -->
-    {% if user.content_creator_profile.approval_status == 'APPROVED' %}
-    <a href="{% url 'courses:create_course' %}" class="btn btn-primary btn-sm">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        Create New Course
+    {% if request.user.role == 'CONTENT_CREATOR' %}
+    <a href="{% url 'courses:create_course' %}" class="btn btn-primary" style="text-decoration: none;">
+        + Create Course
     </a>
-    {% else %}
-    <span class="btn-disabled">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        Create New Course
-    </span>
     {% endif %}
 </div>
 
-<!-- Compact Approval Badge (only for creators) -->
-{% if user.role == 'CONTENT_CREATOR' %}
-    {% with profile=user.content_creator_profile %}
-        {% if profile.approval_status == 'PENDING' %}
-        <div class="approval-badge badge-pending">
-            <svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            Account Pending Approval
-        </div>
-        {% elif profile.approval_status == 'REJECTED' %}
-        <div class="approval-badge badge-rejected">
-            <svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            Account Not Approved{% if profile.rejection_reason %} — {{ profile.rejection_reason }}{% endif %}
-        </div>
-        {% endif %}
-    {% endwith %}
-{% endif %}
-
-<div class="course-grid">
+{% if courses %}
+<div class="cc-grid">
     {% for course in courses %}
     <div class="course-card">
-        <div class="course-thumb">
-            {% if course.thumbnail %}
-                <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" style="width: 100%; height: 100%; object-fit: cover;">
-            {% else %}
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+        <div class="course-thumb" {% if course.thumbnail %}style="background-image: url('{{ course.thumbnail.url }}');"{% endif %}>
+            {% if not course.thumbnail %}
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
             {% endif %}
         </div>
         <div class="course-body">
-            <div class="course-title">{{ course.title }}</div>
-            <div class="course-meta">{{ course.main_category.name }} › {{ course.subcategory.name }}</div>
-            <div class="course-meta">
-                <span class="status-badge status-{{ course.status|lower }}">{{ course.get_status_display }}</span>
+            <h3 class="course-title">{{ course.title|truncatechars:50 }}</h3>
+            <div class="course-cat">{{ course.main_category.name }} › {{ course.subcategory.name }}</div>
+
+            {% if is_admin_or_cm %}
+            <div style="font-size: 0.72rem; color: var(--color-text-muted); margin-top: -2px;">
+                Author: <strong>{{ course.author.first_name|default:'' }} {{ course.author.last_name|default:course.author.email }}</strong>
             </div>
-            <a href="{% url 'courses:course_builder' course.id %}" class="btn-edit">
-                Build Course
-            </a>
+            {% endif %}
+
+            <div class="course-meta">
+                <span>{{ course.get_level_display }}</span>
+                <span class="status-badge st-{{ course.status|lower }}">{{ course.get_status_display }}</span>
+            </div>
         </div>
-    </div>
-    {% empty %}
-    <div class="empty-state" style="grid-column: 1 / -1;">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin-bottom: 16px;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-        <h3 style="font-family: 'Playfair Display', serif; color: var(--color-text); margin-bottom: 8px;">No courses yet</h3>
-        {% if user.content_creator_profile.approval_status == 'APPROVED' %}
-        <p>You haven't created any courses yet. Click "Create New Course" to get started!</p>
-        {% else %}
-        <p>Your account is pending approval. Once approved, you can start creating courses.</p>
+
+        {# ─── Admin / CM: price proposal info ──────────────────────────────── #}
+        {% if is_admin_or_cm and course.status == 'PRICE_PROPOSED' and course.price_proposal %}
+        <div class="price-box">
+            <div class="price-row">
+                <span class="price-label">Proposed price:</span>
+                <span class="price-value">₹{{ course.price_proposal.proposed_price }}</span>
+            </div>
+            <div class="price-row">
+                <span class="price-label">Proposed by:</span>
+                <span>{{ course.price_proposal.proposed_by.first_name|default:course.price_proposal.proposed_by.email }}</span>
+            </div>
+            <div class="price-row">
+                <span class="price-label">Status:</span>
+                <span>{% if course.price_proposal.is_confirmed %}✓ Confirmed{% else %}⏳ Awaiting confirmation{% endif %}</span>
+            </div>
+            <div class="price-actions">
+                <a href="{% url 'courses:pricing_view' course.id %}" class="confirm">Open pricing</a>
+                <a href="{% url 'courses:pricing_view' course.id %}" class="discuss">Discuss</a>
+            </div>
+        </div>
+        {% elif is_admin_or_cm and course.price_proposal %}
+        <div class="price-box">
+            <div class="price-row">
+                <span class="price-label">Last proposal:</span>
+                <span class="price-value">₹{{ course.price_proposal.proposed_price }}</span>
+            </div>
+            <div class="price-row">
+                <span class="price-label">Status:</span>
+                <span>{% if course.price_proposal.is_confirmed %}✓ Confirmed by {{ course.price_proposal.confirmed_by.first_name|default:'' }}{% else %}Not confirmed{% endif %}</span>
+            </div>
+        </div>
         {% endif %}
+
+        <div class="course-actions">
+            {% if course.status == 'PUBLISHED' %}
+            <a href="{% url 'courses:course_detail' course.id %}" target="_blank">View</a>
+            {% endif %}
+            <a href="{% url 'courses:course_builder' course.id %}" class="primary">Open Builder</a>
+            {% if course.status == 'IN_REVIEW' and is_admin_or_cm %}
+            <a href="{% url 'courses:review_course' course.id %}">Review</a>
+            {% endif %}
+            {% if course.status == 'PRICE_PROPOSED' and is_admin_or_cm %}
+            <a href="{% url 'courses:pricing_view' course.id %}">Pricing</a>
+            {% endif %}
+        </div>
     </div>
     {% endfor %}
 </div>
+{% else %}
+<div class="empty-state">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+    <h3 style="font-family: 'Playfair Display', serif; color: var(--color-text); margin: 6px 0;">No courses yet</h3>
+    <p>{% if is_admin_or_cm %}No courses have been created on the platform yet.{% else %}You haven't created any courses yet. Click "Create Course" to get started.{% endif %}</p>
+</div>
+{% endif %}
 {% endblock %}

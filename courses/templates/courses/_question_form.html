@@ -1,0 +1,86 @@
+{% load static %}
+{% comment %}Shared inline question form partial.
+Context: course, scope_type, scope_id, topics, q (Question or None), form_id_prefix ('add'|'edit')
+{% endcomment %}
+<form method="post"
+      action="{% if form_id_prefix == 'add' %}{% url 'courses:question_add_scoped' course.id scope_type scope_id %}{% else %}{% url 'courses:question_edit_scoped' course.id scope_type scope_id q.id %}{% endif %}"
+      class="qform">
+  {% csrf_token %}
+
+  <div class="qform__section">
+    <label class="qform__label">Question text <span class="qform__req">*</span></label>
+    <textarea name="text" class="qform__input" rows="2" required
+              placeholder="Type the question…">{{ q.text|default:'' }}</textarea>
+  </div>
+
+  <div class="qform__grid">
+    <div class="qform__field">
+      <label class="qform__label">Option A <span class="qform__req">*</span></label>
+      <input type="text" name="option_a" class="qform__input" required value="{{ q.option_a|default:'' }}">
+    </div>
+    <div class="qform__field">
+      <label class="qform__label">Option B <span class="qform__req">*</span></label>
+      <input type="text" name="option_b" class="qform__input" required value="{{ q.option_b|default:'' }}">
+    </div>
+    <div class="qform__field">
+      <label class="qform__label">Option C <span class="qform__req">*</span></label>
+      <input type="text" name="option_c" class="qform__input" required value="{{ q.option_c|default:'' }}">
+    </div>
+    <div class="qform__field">
+      <label class="qform__label">Option D <span class="qform__req">*</span></label>
+      <input type="text" name="option_d" class="qform__input" required value="{{ q.option_d|default:'' }}">
+    </div>
+  </div>
+
+  <div class="qform__grid qform__grid--3">
+    <div class="qform__field">
+      <label class="qform__label">Correct <span class="qform__req">*</span></label>
+      <select name="correct_option" class="qform__input" required>
+        <option value="A" {% if q.correct_option == 'A' %}selected{% endif %}>A</option>
+        <option value="B" {% if q.correct_option == 'B' %}selected{% endif %}>B</option>
+        <option value="C" {% if q.correct_option == 'C' %}selected{% endif %}>C</option>
+        <option value="D" {% if q.correct_option == 'D' %}selected{% endif %}>D</option>
+      </select>
+    </div>
+    <div class="qform__field">
+      <label class="qform__label">Difficulty</label>
+      <select name="difficulty" class="qform__input">
+        <option value="EASY"   {% if q.difficulty == 'EASY'   or q.difficulty|default:'EASY' == 'EASY'   %}selected{% endif %}>Easy</option>
+        <option value="MEDIUM" {% if q.difficulty == 'MEDIUM' %}selected{% endif %}>Medium</option>
+        <option value="HARD"   {% if q.difficulty == 'HARD'   %}selected{% endif %}>Hard</option>
+      </select>
+    </div>
+    <div class="qform__field">
+      <label class="qform__label">Topic (optional)</label>
+      <select name="topic" class="qform__input">
+        <option value="">— none —</option>
+        {% for topic in topics %}
+        <option value="{{ topic.id }}" {% if q.topic_id|stringformat:"s" == topic.id|stringformat:"s" %}selected{% endif %}>{{ topic.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <div class="qform__section">
+    <label class="qform__label">Explanation (optional)</label>
+    <input type="text" name="explanation" class="qform__input" value="{{ q.explanation|default:'' }}"
+           placeholder="Why is this the correct answer?">
+  </div>
+
+  <div class="qform__footer">
+    <button type="button" class="qform__cancel"
+            data-bs-toggle="collapse"
+            data-bs-target="#q-add-form-{{ scope_type }}-{{ scope_id }}, #q-edit-{{ q.id|default:'' }}">
+      Cancel
+    </button>
+    <button type="submit" class="qform__submit">
+      {% if form_id_prefix == 'add' %}
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Add Question
+      {% else %}
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      Save changes
+      {% endif %}
+    </button>
+  </div>
+</form>

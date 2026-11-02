@@ -1,0 +1,90 @@
+{% load static %}
+{% comment %}Shared inline-questions partial.{% endcomment %}
+<div class="qlist"
+     data-scope-type="{{ scope_type }}"
+     data-scope-id="{{ scope_id }}"
+     data-course-id="{{ course.id }}"
+     data-reorder-url="{% url 'courses:question_reorder_scoped' course.id scope_type scope_id %}">
+
+  <div class="qlist__header">
+    <div>
+      <h3 class="qlist__title">Questions <span class="qlist__count">{{ questions|length }}</span></h3>
+      <p class="qlist__summary">
+        Questions in this
+        {% if scope_type == 'chapter' %}chapter quiz
+        {% elif scope_type == 'module' %}module mock test
+        {% else %}final question set{% endif %}.
+        Drag <i class="bi bi-grip-vertical"></i> to reorder.
+      </p>
+    </div>
+    {% if can_edit %}
+    <button type="button" class="qlist__add-btn" data-bs-toggle="collapse"
+            data-bs-target="#q-add-form-{{ scope_type }}-{{ scope_id }}" aria-expanded="false">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Add Question
+    </button>
+    {% endif %}
+  </div>
+
+  {% if can_edit %}
+  <div class="collapse" id="q-add-form-{{ scope_type }}-{{ scope_id }}">
+    {% include "courses/_question_form.html" with course=course scope_type=scope_type scope_id=scope_id topics=topics q=None form_id_prefix='add' %}
+  </div>
+  {% endif %}
+
+  <ul class="qlist__rows list-unstyled mb-0 mt-3">
+    {% for q in questions %}
+    <li class="qrow" data-question-id="{{ q.id }}" data-order="{{ q.order }}">
+      <div class="qrow__rail">
+        <span class="qrow__num">Q{{ forloop.counter }}</span>
+        {% if can_edit %}
+        <button type="button" class="qrow__handle" title="Drag to reorder">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="9" cy="6" r="1"></circle><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="18" r="1"></circle><circle cx="15" cy="6" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="18" r="1"></circle></svg>
+        </button>
+        {% endif %}
+      </div>
+
+      <div class="qrow__body">
+        <div class="qrow__meta">
+          <span class="qchip qchip--diff qchip--{{ q.difficulty|lower }}">{{ q.get_difficulty_display }}</span>
+          {% if q.topic %}<span class="qchip qchip--topic">{{ q.topic.name }}</span>{% endif %}
+          <span class="qchip qchip--ans">Ans: {{ q.correct_option }}</span>
+        </div>
+        <p class="qrow__text">{{ q.text }}</p>
+        <ul class="qrow__opts" type="A">
+          <li class="{% if q.correct_option == 'A' %}is-correct{% endif %}">{{ q.option_a }}</li>
+          <li class="{% if q.correct_option == 'B' %}is-correct{% endif %}">{{ q.option_b }}</li>
+          {% if q.option_c %}<li class="{% if q.correct_option == 'C' %}is-correct{% endif %}">{{ q.option_c }}</li>{% endif %}
+          {% if q.option_d %}<li class="{% if q.correct_option == 'D' %}is-correct{% endif %}">{{ q.option_d }}</li>{% endif %}
+        </ul>
+        {% if q.explanation %}
+        <p class="qrow__exp"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> {{ q.explanation }}</p>
+        {% endif %}
+      </div>
+
+      {% if can_edit %}
+      <div class="qrow__actions">
+        <button type="button" class="qrow__btn qrow__btn--edit" data-bs-toggle="collapse" data-bs-target="#q-edit-{{ q.id }}" title="Edit">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+        </button>
+        <form method="post" action="{% url 'courses:question_delete_scoped' course.id scope_type scope_id q.id %}" class="qrow__delete-form" onsubmit="return confirm('Delete Q{{ forloop.counter }}? This cannot be undone.');">
+          {% csrf_token %}
+          <button type="submit" class="qrow__btn qrow__btn--delete" title="Delete">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          </button>
+        </form>
+      </div>
+      <div class="collapse qrow__edit-form" id="q-edit-{{ q.id }}">
+        {% include "courses/_question_form.html" with course=course scope_type=scope_type scope_id=scope_id topics=topics q=q form_id_prefix='edit' %}
+      </div>
+      {% endif %}
+    </li>
+    {% empty %}
+    <li class="qlist__empty">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      <h4>No questions yet</h4>
+      <p>Click <strong>Add Question</strong> to create the first one.</p>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
